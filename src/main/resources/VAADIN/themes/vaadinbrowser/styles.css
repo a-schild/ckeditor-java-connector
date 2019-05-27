@@ -1,0 +1,483 @@
+@import "../reindeer/styles.css";
+
+
+.v-table-cell-content-aac {
+    background-image: url("../../icons/32px/aac.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-ai {
+    background-image: url("../../icons/32px/ai.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-aiff {
+    background-image: url("../../icons/32px/aiff.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-avi {
+    background-image: url("../../icons/32px/avi.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-bmp {
+    background-image: url("../../icons/32px/bmp.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-c {
+    background-image: url("../../icons/32px/c.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-cpp {
+    background-image: url("../../icons/32px/cpp.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-css {
+    background-image: url("../../icons/32px/css.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-dat {
+    background-image: url("../../icons/32px/dat.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-dmg {
+    background-image: url("../../icons/32px/dmg.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-doc {
+    background-image: url("../../icons/32px/doc.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-dotx {
+    background-image: url("../../icons/32px/dotx.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-dwg {
+    background-image: url("../../icons/32px/dwg.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-dxf {
+    background-image: url("../../icons/32px/dxf.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-eps {
+    background-image: url("../../icons/32px/eps.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-exe {
+    background-image: url("../../icons/32px/exe.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-flv {
+    background-image: url("../../icons/32px/flv.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-gif {
+    background-image: url("../../icons/32px/gif.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-h {
+    background-image: url("../../icons/32px/h.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-hpp {
+    background-image: url("../../icons/32px/hpp.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-html {
+    background-image: url("../../icons/32px/html.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-ics {
+    background-image: url("../../icons/32px/ics.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-iso {
+    background-image: url("../../icons/32px/iso.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-java {
+    background-image: url("../../icons/32px/java.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-jpg {
+    background-image: url("../../icons/32px/jpg.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-key {
+    background-image: url("../../icons/32px/key.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-mid {
+    background-image: url("../../icons/32px/mid.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-mp3 {
+    background-image: url("../../icons/32px/mp3.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-mp4 {
+    background-image: url("../../icons/32px/mp4.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-mpg {
+    background-image: url("../../icons/32px/mpg.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-odf {
+    background-image: url("../../icons/32px/odf.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-ods {
+    background-image: url("../../icons/32px/ods.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-odt {
+    background-image: url("../../icons/32px/odt.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-otp {
+    background-image: url("../../icons/32px/otp.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-ots {
+    background-image: url("../../icons/32px/ots.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-ott {
+    background-image: url("../../icons/32px/ott.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-pdf {
+    background-image: url("../../icons/32px/pdf.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-php {
+    background-image: url("../../icons/32px/php.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-png {
+    background-image: url("../../icons/32px/png.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-ppt {
+    background-image: url("../../icons/32px/ppt.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-psd {
+    background-image: url("../../icons/32px/psd.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-py {
+    background-image: url("../../icons/32px/py.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-qt {
+    background-image: url("../../icons/32px/qt.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-rar {
+    background-image: url("../../icons/32px/rar.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-rb {
+    background-image: url("../../icons/32px/rb.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-rtf {
+    background-image: url("../../icons/32px/rtf.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-sql {
+    background-image: url("../../icons/32px/sql.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-tga {
+    background-image: url("../../icons/32px/tga.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-tgz {
+    background-image: url("../../icons/32px/tgz.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-tiff {
+    background-image: url("../../icons/32px/tiff.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-txt {
+    background-image: url("../../icons/32px/txt.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-wav {
+    background-image: url("../../icons/32px/wav.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-xls {
+    background-image: url("../../icons/32px/xls.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-xlsx {
+    background-image: url("../../icons/32px/xlsx.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-xml {
+    background-image: url("../../icons/32px/xml.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-yml {
+    background-image: url("../../icons/32px/yml.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-zip {
+    background-image: url("../../icons/32px/zip.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-_blank {
+    background-image: url("../../icons/32px/_blank.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-table-cell-content-_page {
+    background-image: url("../../icons/32px/_page.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    text-indent: 32px;
+    vertical-align: middle;
+}
+
+.v-gridlayout-GridItem {
+    background-color: #808080;
+    border: 2px #FFFFFF solid; 
+}
+
+.v-gridlayout-GridItem .v-gridlayout-margin {
+    padding: 2px 2px 2px 2px;
+}
