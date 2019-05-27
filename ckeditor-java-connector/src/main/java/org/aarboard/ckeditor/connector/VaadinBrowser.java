@@ -171,7 +171,6 @@ package org.aarboard.ckeditor.connector;
 import com.vaadin.Application;
 import com.vaadin.data.Container;
 import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.Action;
 import com.vaadin.event.Action.Handler;
@@ -324,37 +323,33 @@ public class VaadinBrowser extends Application
         _folderBrowser= new TreeTable();
         _folderBrowser.setCaption("Folders");
 
-        _folderBrowser.addListener(new ItemClickListener()
-        {
-            public void itemClick(ItemClickEvent event)
+        _folderBrowser.addListener((ItemClickListener) (ItemClickEvent event) -> {
+            Object propertyId = event.getPropertyId();
+            Object itemId = event.getItemId();
+            Object value = _folderBrowser.getValue();
+            if (itemId != value)
             {
-                Object propertyId = event.getPropertyId();
-                Object itemId = event.getItemId();
-                Object value = _folderBrowser.getValue();
-                if (itemId != value)
-                {
-                    _folderBrowser.setValue(itemId);
-                } 
-                else if ("name".equals(propertyId))
-                {
-                    /*
-                    Field nameField = getNameField((WorkRecord) event
-                            .getItemId());
-                    nameField.setReadOnly(false);
-                    nameField.focus();
-                     *
-                     */
-                }
-                /*
-                for (WorkRecord f : workToNameField.keySet()) {
-                    if (itemId != f) {
-                        NameField nameField = workToNameField.get(f);
-                        nameField.setReadOnly(true);
-                    }
-                }
-                 *
-                 */
+                _folderBrowser.setValue(itemId);
             }
+            else if ("name".equals(propertyId))
+            {
+                /*
+                Field nameField = getNameField((WorkRecord) event
+                .getItemId());
+                nameField.setReadOnly(false);
+                nameField.focus();
+                *
+                */
+            }
+            /*
+            for (WorkRecord f : workToNameField.keySet()) {
+            if (itemId != f) {
+            NameField nameField = workToNameField.get(f);
+            nameField.setReadOnly(true);
+            }
+            }
+            *
+            */
         });
 
         _folderBrowser.addActionHandler(new Handler()
@@ -381,23 +376,17 @@ public class VaadinBrowser extends Application
                     if (item.isCreateFolderAllowed())
                     {
                          ObjectNameDialog dialog= new ObjectNameDialog(
-                                 "Create new folder", "Folder name", "", false,
-                                 new ObjectNameDialog.ObjectNameDialogCallback()
-                                {
-                                    public void newName(String newName)
-                                    {
-                                        if (item.handleFolderCreation(newName))
-                                        {
-                                            // Update tree
-                                            _folderContainer.refresh();
-                                        }
-                                        else
-                                        {
-                                            showErrorNotification("Creation of folder failed");
-                                        }
-                                    }
-                                }
-                         );
+                                 "Create new folder", "Folder name", "", false, (String newName) -> {
+                                     if (item.handleFolderCreation(newName))
+                                     {
+                                         // Update tree
+                                         _folderContainer.refresh();
+                                     }
+                                     else
+                                     {
+                                         showErrorNotification("Creation of folder failed");
+                                     }
+                         });
                          _mainWindow.addWindow(dialog);
                     }
                 } 
@@ -408,23 +397,17 @@ public class VaadinBrowser extends Application
                     {
                         ObjectNameDialog dialog= new ObjectNameDialog(
                                 "Rename folder", "New folder name",
-                                item.getName(), true,
-                                new ObjectNameDialog.ObjectNameDialogCallback()
-                                {
-                                    public void newName(String newName)
+                                item.getName(), true, (String newName) -> {
+                                    if (!item.handleFolderRename(newName))
                                     {
-                                        if (!item.handleFolderRename(newName))
-                                        {
-                                            showErrorNotification("Rename failed");
-                                        }
-                                        else
-                                        {
-                                            // Update tree
-                                            _folderContainer.refresh();
-                                        }
+                                        showErrorNotification("Rename failed");
                                     }
-                                }
-                         );
+                                    else
+                                    {
+                                        // Update tree
+                                        _folderContainer.refresh();
+                                    }
+                        });
                          _mainWindow.addWindow(dialog);
                     }
                 } 
@@ -436,31 +419,27 @@ public class VaadinBrowser extends Application
                         ConfirmDialog.show(_mainWindow,
                                 "Please confirm:",
                                 "Do you wish to delete <"+item.getName()+"> ?",
-                                "Yes", "No", new ConfirmDialog.Listener()
-                        {
-                                    public void onClose(ConfirmDialog dialog)
+                                "Yes", "No", (ConfirmDialog dialog) -> {
+                                    if (dialog.isConfirmed())
                                     {
-                                        if (dialog.isConfirmed())
+                                        // Confirmed to continue
+                                        LOG.info("Delete folder <"+item.getName()+">");
+                                        if (item.handleFolderDelete())
                                         {
-                                            // Confirmed to continue
-                                            LOG.info("Delete folder <"+item.getName()+">");
-                                            if (item.handleFolderDelete())
-                                            {
-                                                // Also remove from detail view
-                                                _folderBrowser.getContainerDataSource().removeItem(item);
-                                            }
-                                            else
-                                            {
-                                                _mainWindow.showNotification("Delete failed", "Failed to delete <"+item.getName()+">");
-                                            }
+                                            // Also remove from detail view
+                                            _folderBrowser.getContainerDataSource().removeItem(item);
                                         }
                                         else
                                         {
-                                            // User did not confirm
-                                            // feedback(dialog.isConfirmed());
+                                            _mainWindow.showNotification("Delete failed", "Failed to delete <"+item.getName()+">");
                                         }
                                     }
-                                });
+                                    else
+                                    {
+                                        // User did not confirm
+                                        // feedback(dialog.isConfirmed());
+                                    }
+                        });
                     }
                 }
                 else if (action == SELECT)
@@ -573,26 +552,21 @@ public class VaadinBrowser extends Application
         _leftPart.addComponent(uriFragment);
         LOG.warn("Initial fragment" + uriFragment.getFragment());
         
-        _folderBrowser.addListener(new TreeTable.ValueChangeListener()
-        {
-
-            public void valueChange(ValueChangeEvent event) 
+        _folderBrowser.addListener((ValueChangeEvent event) -> {
+            Object selected= event.getProperty().getValue();
+            if (selected instanceof File) 
             {
-                Object selected= event.getProperty().getValue();
-                if (selected instanceof File)
+                File value = (File) selected;
+                
+                if (value.isDirectory())
                 {
-                    File value = (File) selected;
-
-                    if (value.isDirectory())
-                    {
-                        // _contentArea.setSource(FOLDER);
-                    }
-                    else
-                    {
-                        //FileResource fileResource = new FileResource(value,
-                        //        ImageBrowser.this);
-                        //image.setSource(fileResource);
-                    }
+                    // _contentArea.setSource(FOLDER);
+                }
+                else
+                {
+                    //FileResource fileResource = new FileResource(value,
+                    //        ImageBrowser.this);
+                    //image.setSource(fileResource);
                 }
             }
         });
@@ -603,12 +577,8 @@ public class VaadinBrowser extends Application
 
         // Hide messages when clicked anywhere (not only with the close
         // button)
-        _notifications.setClickListener(new Notifique.ClickListener() 
-        {
-            @Override
-            public void messageClicked(Message message) {
-                message.hide();
-            }
+        _notifications.setClickListener((Message message) -> {
+            message.hide();
         });
         // Display as overlay in top of the main window
         // CustomOverlay ol = new CustomOverlay(_notifications, getMainWindow());
@@ -723,7 +693,7 @@ public class VaadinBrowser extends Application
                 hl.addComponent(_captionLabel);
                 _captionLabel.setWidth(100, Label.UNITS_PERCENTAGE);
                 hl.setExpandRatio(_captionLabel, 1);
-                _contentArea.addComponent(_topArea, BorderLayout.Constraint.NORTH);
+                _contentArea.addComponent(_topArea, BorderLayout.Constraint.PAGE_START);
             }
             else
             {
@@ -732,44 +702,36 @@ public class VaadinBrowser extends Application
                 hl.setExpandRatio(_captionLabel, 1);
                 _topArea.addComponent(hl);
                 _captionLabel.setWidth(100, Label.UNITS_PERCENTAGE);
-                _contentArea.addComponent(_topArea, BorderLayout.Constraint.NORTH);
+                _contentArea.addComponent(_topArea, BorderLayout.Constraint.PAGE_START);
             }
             Button listView= new Button();
             listView.setDescription("Show items as list");
             listView.setIcon(new ThemeResource("../../icons/list_view.gif"));
             hl.addComponent(listView);
-            listView.addListener(new ClickListener()
+            listView.addListener((ClickListener) (ClickEvent event) -> {
+                if (!_showAsList)
                 {
-                    public void buttonClick(ClickEvent event) 
-                    {
-                        if (!_showAsList)
-                        {
-                            _showAsList= true;
-                            //_cookies.setCookie(getCookieName()+"ShowAsList", "1", getCookieExpiration());
-                            switchToList();
-                        }
-                    }
-                });
+                    _showAsList= true;
+                    //_cookies.setCookie(getCookieName()+"ShowAsList", "1", getCookieExpiration());
+                    switchToList();
+                }
+            });
             Button galView= new Button();
             galView.setDescription("Show items as gallery with preview");
             galView.setIcon(new ThemeResource("../../icons/gallery_view_on.gif"));
             hl.addComponent(galView);
-            galView.addListener(new ClickListener()
+            galView.addListener((ClickListener) (ClickEvent event) -> {
+                if (_showAsList)
                 {
-                    public void buttonClick(ClickEvent event) 
-                    {
-                        if (_showAsList)
-                        {
-                            //_cookies.setCookie(getCookieName()+"ShowAsList", "0", getCookieExpiration());
-                            _showAsList= false;
-                            switchToGrid();
-                        }
-                        else
-                        {
-                            // Ignore, already grid view
-                        }
-                    }
-                });
+                    //_cookies.setCookie(getCookieName()+"ShowAsList", "0", getCookieExpiration());
+                    _showAsList= false;
+                    switchToGrid();
+                }
+                else
+                {
+                    // Ignore, already grid view
+                }
+            });
         }
         else
         {
@@ -780,23 +742,19 @@ public class VaadinBrowser extends Application
         _folderBrowser.setImmediate(true);
         _folderBrowser.setColumnIcon(_folderBrowser.getHierarchyColumnId() /*CollapsibleFileSystemContainer.PROPERTY_NAME */,
                 new ThemeResource("../runo/icons/16/document.png"));
-        _folderBrowser.addListener(new ValueChangeListener()
+        _folderBrowser.addListener((ValueChangeEvent event) -> {
+            // Item selected
+            Object obj= event.getProperty().getValue();
+            if (obj != null)
             {
-                public void valueChange(ValueChangeEvent event)
-                {
-                    // Item selected
-                    Object obj= event.getProperty().getValue();
-                    if (obj != null)
-                    {
-                        IFolder selFolder= (IFolder) obj;
-                        showFolder(selFolder);
-                    }
-                    else
-                    {
-                        LOG.debug("Selected : "+(obj != null ? obj.toString() : "Null"));
-                    }
-                }
-            });
+                IFolder selFolder= (IFolder) obj;
+                showFolder(selFolder);
+            }
+            else
+            {
+                LOG.debug("Selected : "+(obj != null ? obj.toString() : "Null"));
+            }
+        });
         if (showDetail)
         {
             Container.Hierarchical treeSrc= _folderBrowser.getContainerDataSource();
@@ -946,7 +904,7 @@ public class VaadinBrowser extends Application
             else
             {
                 _uploadAreaM= new FileUploader(this, folder);
-                _contentArea.addComponent(_uploadAreaM, BorderLayout.Constraint.EAST);
+                _contentArea.addComponent(_uploadAreaM, BorderLayout.Constraint.LINE_END);
             }
         }
         else
@@ -1038,123 +996,88 @@ public class VaadinBrowser extends Application
             {
                 Button selButton= new Button("Select");
                 selButton.setData(itemId);
-                selButton.addListener(new ClickListener()
-                    {
-                        public void buttonClick(ClickEvent event)
-                        {
-                            Object itemId= event.getButton().getData();
-                            if (itemId instanceof IObject)
-                            {
-                                IObject obj= (IObject) itemId;
-                                fileSelected(obj.getURL());
-                            }
-                        }
+                selButton.addListener((ClickListener) (ClickEvent event) -> {
+                    Object itemId1 = event.getButton().getData();
+                    if (itemId1 instanceof IObject) {
+                        IObject obj = (IObject) itemId1;
+                        fileSelected(obj.getURL());
                     }
-                );
+                });
                 hl.addComponent(selButton);
             }
             if (fileObject.isDeleteAllowed())
             {
                 Button delButton= new Button("Delete");
                 delButton.setData(itemId);
-                delButton.addListener(new ClickListener()
-                    {
-                        public void buttonClick(ClickEvent event)
-                        {
-                            Object itemId= event.getButton().getData();
-                            if (itemId instanceof IObject)
-                            {
-                                final IObject obj= (IObject) itemId;
-                                ConfirmDialog.show(_mainWindow,
-                                        "Please confirm:",
-                                        "Do you wish to delete <"+obj.getName()+"> ?",
-                                        "Yes", "No", new ConfirmDialog.Listener()
-                                {
-
-                                            public void onClose(ConfirmDialog dialog)
-                                            {
-                                                if (dialog.isConfirmed())
-                                                {
-                                                    // Confirmed to continue
-                                                    LOG.info("Delete file <"+obj.getName()+">");
-                                                    if (obj.delete())
-                                                    {
-                                                        // Also remove from detail view
-                                                        _objectContainer.removeItem(obj);
-                                                    }
-                                                    else
-                                                    {
-                                                        _mainWindow.showNotification("Delete failed", "Failed to delete <"+obj.getName()+">");
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    // User did not confirm
-                                                    // feedback(dialog.isConfirmed());
-                                                }
-                                            }
-                                        });
-                            }
-                        }
+                delButton.addListener((ClickListener) (ClickEvent event) -> {
+                    Object itemId1 = event.getButton().getData();
+                    if (itemId1 instanceof IObject) {
+                        final IObject obj = (IObject) itemId1;
+                        ConfirmDialog.show(_mainWindow,
+                                "Please confirm:",
+                                "Do you wish to delete <"+obj.getName()+"> ?",
+                                "Yes", "No", (ConfirmDialog dialog) -> {
+                                    if (dialog.isConfirmed())
+                                    {
+                                        // Confirmed to continue
+                                        LOG.info("Delete file <"+obj.getName()+">");
+                                        if (obj.delete())
+                                        {
+                                            // Also remove from detail view
+                                            _objectContainer.removeItem(obj);
+                                        }
+                                        else
+                                        {
+                                            _mainWindow.showNotification("Delete failed", "Failed to delete <"+obj.getName()+">");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // User did not confirm
+                                        // feedback(dialog.isConfirmed());
+                                    }
+                        });
                     }
-                );
+                });
                 hl.addComponent(delButton);
             }
             if (fileObject.isRenameAllowed())
             {
                 Button renButton= new Button("Rename");
                 renButton.setData(itemId);
-                renButton.addListener(new ClickListener()
-                    {
-                        public void buttonClick(ClickEvent event)
-                        {
-                            Object itemId= event.getButton().getData();
-                            if (itemId instanceof IObject)
-                            {
-                                final IObject obj= (IObject) itemId;
-                                ObjectNameDialog dialog= new ObjectNameDialog(
-                                        "Rename object", "New object name",
-                                        obj.getName(), true,
-                                        new ObjectNameDialog.ObjectNameDialogCallback()
-                                        {
-                                            public void newName(String newName)
-                                            {
-                                                if (!obj.handleRename(newName))
-                                                {
-                                                    showErrorNotification("Rename failed");
-                                                }
-                                                else
-                                                {
-                                                    // Update tree
-                                                    _objectContainer.refresh();
-                                                }
-                                            }
-                                        }
-                                 );
-                                 _mainWindow.addWindow(dialog);
-                            }
-                        }
+                renButton.addListener((ClickListener) (ClickEvent event) -> {
+                    Object itemId1 = event.getButton().getData();
+                    if (itemId1 instanceof IObject) {
+                        final IObject obj = (IObject) itemId1;
+                        ObjectNameDialog dialog= new ObjectNameDialog(
+                                "Rename object", "New object name",
+                                obj.getName(), true, (String newName) -> {
+                                    if (!obj.handleRename(newName))
+                                    {
+                                        showErrorNotification("Rename failed");
+                                    }
+                                    else
+                                    {
+                                        // Update tree
+                                        _objectContainer.refresh();
+                                    }
+                        });
+                        _mainWindow.addWindow(dialog);
                     }
-                );
+                });
                 hl.addComponent(renButton);
             }
             if (fileObject.isResizeAllowed())
             {
                 Button resButton= new Button("Resize");
                 resButton.setData(itemId);
-                resButton.addListener(new ClickListener()
-                    {
-                        public void buttonClick(ClickEvent event)
-                        {
-                            Object itemId= event.getButton().getData();
-                            if (itemId instanceof IObject)
-                            {
-                                IObject obj= (IObject) itemId;
-                                fileSelected(obj.getURL());
-                            }
-                        }
+                resButton.addListener((ClickListener) (ClickEvent event) -> {
+                    Object itemId1 = event.getButton().getData();
+                    if (itemId1 instanceof IObject) {
+                        IObject obj = (IObject) itemId1;
+                        fileSelected(obj.getURL());
                     }
-                );
+                });
                 hl.addComponent(resButton);
             }
             return hl;
@@ -1165,6 +1088,7 @@ public class VaadinBrowser extends Application
     public class FolderColumnGenerator implements ColumnGenerator
     {
         private static final long serialVersionUID = 1L;
+        @Override
         public Component generateCell(Table source, Object itemId, Object columnId)
         {
             IFolder folderObject= (IFolder) itemId;
@@ -1174,19 +1098,13 @@ public class VaadinBrowser extends Application
             {
                 Button selButton= new Button("Select");
                 selButton.setData(itemId);
-                selButton.addListener(new ClickListener()
-                    {
-                        public void buttonClick(ClickEvent event)
-                        {
-                            Object itemId= event.getButton().getData();
-                            if (itemId instanceof IFolder)
-                            {
-                                IFolder obj= (IFolder) itemId;
-                                fileSelected(obj.getURL());
-                            }
-                        }
+                selButton.addListener((ClickListener) (ClickEvent event) -> {
+                    Object itemId1 = event.getButton().getData();
+                    if (itemId1 instanceof IFolder) {
+                        IFolder obj = (IFolder) itemId1;
+                        fileSelected(obj.getURL());
                     }
-                );
+                });
                 hl.addComponent(selButton);
             }
             return hl;
@@ -1203,7 +1121,7 @@ public class VaadinBrowser extends Application
      */
     public static String getContextString(String key, String defaultValue)
     {
-        String retVal= null;
+        String retVal;
         try
         {
             Context initCtx = new InitialContext();
@@ -1290,38 +1208,32 @@ public class VaadinBrowser extends Application
             _contentTable.addGeneratedColumn("ACTION", new DetailColumnGenerator());
             // Not yet _contentTable.setMultiSelect(true);
 
-            _contentTable.setCellStyleGenerator(
-                    new Table.CellStyleGenerator() 
+            _contentTable.setCellStyleGenerator((final Object itemId, final Object propertyId) -> {
+                if (propertyId != null) 
+                {
+                    if (propertyId.equals(ObjectContainer.OBJECT_PROPERTY_NAME))
                     {
-                        @Override
-                        public String getStyle(final Object itemId, final Object propertyId) 
+                        if (itemId instanceof IIconProvider) 
                         {
-                            if (propertyId != null)
-                            {
-                                if (propertyId.equals(ObjectContainer.OBJECT_PROPERTY_NAME))
-                                {
-                                    if (itemId instanceof IIconProvider)
-                                    {
-                                        IIconProvider iItem= (IIconProvider) itemId;
-                                        String icon= iItem.getListIcon();
-                                        return icon;
-                                    }
-                                    else
-                                    {
-                                        return null;
-                                    }
-                                }
-                                else
-                                {
-                                    return null;
-                                }
-                            }
-                            else
-                            {
-                                return null;
-                            }
+                            IIconProvider iItem= (IIconProvider) itemId;
+                            String icon= iItem.getListIcon();
+                            return icon;
                         }
-                    });
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                else
+                {
+                    return null;
+                }
+            });
         }
         else
         {
