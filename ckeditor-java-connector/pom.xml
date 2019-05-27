@@ -15,11 +15,10 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven-compiler-plugin-version>2.3.2</maven-compiler-plugin-version>
-        <maven-jar-plugin-version>3.1.2</maven-jar-plugin-version>
         <vaadin.version>6.8.18</vaadin.version>
         <gwt.version>2.3.0</gwt.version>
         <gwt.plugin.version>2.2.0</gwt.plugin.version>
+        <vaadin-maven-plugin.version>1.0.2</vaadin-maven-plugin.version>
         <commons-logging-api.version>1.1</commons-logging-api.version>        
         <easyuploads.version>0.5.3</easyuploads.version>
         <sessionguard.version>0.0.5</sessionguard.version>
@@ -36,24 +35,18 @@
         <finalName>ckeditor-java-connector</finalName>
         <resources>
             <resource>
-                <directory>target/ckeditor-java-connector</directory>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
-            <resource>
                 <directory>src/main/resources</directory>
                 <includes>
                     <include>**/*</include>
                 </includes>
             </resource>
-        </resources>        
+        </resources>     
+           
         <plugins>
-            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin-version}</version>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
@@ -99,7 +92,7 @@
             <plugin>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
-                <version>1.0.2</version>
+                <version>${vaadin-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <configuration>
@@ -110,11 +103,37 @@
                     </execution>
                 </executions>
             </plugin>
-           
+            <plugin>       
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven-resources-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}/VAADIN/</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/ckeditor-java-connector/VAADIN/
+                                    </directory>
+                                    <excludes>
+                                        <exclude>**/*.symbolMap</exclude>
+                                    </excludes>                                    
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven-jar-plugin-version}</version>
+                <version>${maven-jar-plugin.version}</version>
             </plugin>
         </plugins>
     </build>
@@ -196,8 +215,8 @@
             <version>${confirmdialog.version}</version>
         </dependency>
         <dependency>
-           <groupId>org.vaadin.addons</groupId>
-           <artifactId>border-layout-addon</artifactId>
+            <groupId>org.vaadin.addons</groupId>
+            <artifactId>border-layout-addon</artifactId>
             <version>${borderlayout.version}</version>
         </dependency>        
         <!-- https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload -->
