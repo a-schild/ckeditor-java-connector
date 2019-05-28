@@ -27,7 +27,7 @@
         <commons-lang.version>2.6</commons-lang.version>
         <commons-io.version>2.6</commons-io.version>
         <confirmdialog.version>1.2.1</confirmdialog.version>
-        <borderlayout.version>1.0</borderlayout.version>
+        <borderlayout.version>0.3</borderlayout.version>
         <commons-fileupload.version>1.4</commons-fileupload.version>
     </properties>
 
@@ -216,7 +216,7 @@
         </dependency>
         <dependency>
             <groupId>org.vaadin.addons</groupId>
-            <artifactId>border-layout-addon</artifactId>
+            <artifactId>borderlayout</artifactId>
             <version>${borderlayout.version}</version>
         </dependency>        
         <!-- https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload -->

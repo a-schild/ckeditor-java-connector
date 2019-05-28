@@ -693,7 +693,7 @@ public class VaadinBrowser extends Application
                 hl.addComponent(_captionLabel);
                 _captionLabel.setWidth(100, Label.UNITS_PERCENTAGE);
                 hl.setExpandRatio(_captionLabel, 1);
-                _contentArea.addComponent(_topArea, BorderLayout.Constraint.PAGE_START);
+                _contentArea.addComponent(_topArea, BorderLayout.Constraint.NORTH);
             }
             else
             {
@@ -702,7 +702,7 @@ public class VaadinBrowser extends Application
                 hl.setExpandRatio(_captionLabel, 1);
                 _topArea.addComponent(hl);
                 _captionLabel.setWidth(100, Label.UNITS_PERCENTAGE);
-                _contentArea.addComponent(_topArea, BorderLayout.Constraint.PAGE_START);
+                _contentArea.addComponent(_topArea, BorderLayout.Constraint.NORTH);
             }
             Button listView= new Button();
             listView.setDescription("Show items as list");
@@ -904,7 +904,7 @@ public class VaadinBrowser extends Application
             else
             {
                 _uploadAreaM= new FileUploader(this, folder);
-                _contentArea.addComponent(_uploadAreaM, BorderLayout.Constraint.LINE_END);
+                _contentArea.addComponent(_uploadAreaM, BorderLayout.Constraint.EAST);
             }
         }
         else
