@@ -878,47 +878,50 @@ public class VaadinBrowser extends Application
      */
     protected void showFolder(IFolder folder)
     {
-        _captionLabel.setValue("Content of folder: "+folder.getName());
-        _objectContainer= new ObjectContainer(folder, this);
-        if (_showAsList)
+        if (folder != null)
         {
-            _contentTable.setContainerDataSource(_objectContainer);
-        }
-        else
-        {
-            _contentFlow.setContainerDataSource(_objectContainer);
-        }
-        if (folder.isUploadAllowed())
-        {
-            WebBrowser browser = (WebBrowser) _mainWindow.getTerminal();
-            if (browser.isIE())
+            _captionLabel.setValue("Content of folder: "+folder.getName());
+            _objectContainer= new ObjectContainer(folder, this);
+            if (_showAsList)
             {
-                LOG.debug("Simple fileupload for IE in folder: "+folder.getURL());
+                _contentTable.setContainerDataSource(_objectContainer);
+            }
+            else
+            {
+                _contentFlow.setContainerDataSource(_objectContainer);
+            }
+            if (folder.isUploadAllowed())
+            {
+                WebBrowser browser = (WebBrowser) _mainWindow.getTerminal();
+                if (browser.isIE())
+                {
+                    LOG.debug("Simple fileupload for IE in folder: "+folder.getURL());
+                    if (_uploadAreaS != null)
+                    {
+                        _topArea.removeComponent(_uploadAreaS);
+                    }
+                    _uploadAreaS= new SimpleFileUploader(this, folder);
+                    _topArea.addComponent(_uploadAreaS);
+                }
+                else
+                {
+                    _uploadAreaM= new FileUploader(this, folder);
+                    _contentArea.addComponent(_uploadAreaM, BorderLayout.Constraint.EAST);
+                }
+            }
+            else
+            {
+                if (_uploadAreaM != null)
+                {
+                    _contentArea.removeComponent(_uploadAreaM);
+                }
+                _uploadAreaM= null;
                 if (_uploadAreaS != null)
                 {
                     _topArea.removeComponent(_uploadAreaS);
                 }
-                _uploadAreaS= new SimpleFileUploader(this, folder);
-                _topArea.addComponent(_uploadAreaS);
+                _uploadAreaS= null;
             }
-            else
-            {
-                _uploadAreaM= new FileUploader(this, folder);
-                _contentArea.addComponent(_uploadAreaM, BorderLayout.Constraint.EAST);
-            }
-        }
-        else
-        {
-            if (_uploadAreaM != null)
-            {
-                _contentArea.removeComponent(_uploadAreaM);
-            }
-            _uploadAreaM= null;
-            if (_uploadAreaS != null)
-            {
-                _topArea.removeComponent(_uploadAreaS);
-            }
-            _uploadAreaS= null;
         }
     }
 
