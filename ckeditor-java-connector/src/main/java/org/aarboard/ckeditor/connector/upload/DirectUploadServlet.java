@@ -189,8 +189,8 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -198,7 +198,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class DirectUploadServlet extends HttpServlet
 {
-    private final static Log LOG= LogFactory.getLog(DirectUploadServlet.class);
+    private final static Logger LOG = LoggerFactory.getLogger(DirectUploadServlet.class);
     private static final long serialVersionUID = 1L;
    
     /** 

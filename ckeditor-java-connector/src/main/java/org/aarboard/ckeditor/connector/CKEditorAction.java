@@ -170,8 +170,8 @@ package org.aarboard.ckeditor.connector;
 
 import java.io.Serializable;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -179,7 +179,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class CKEditorAction implements Serializable
 {
-    private final static Log LOG= LogFactory.getLog(CKEditorAction.class);
+    private final static Logger LOG = LoggerFactory.getLogger(CKEditorAction.class);
     private static final long serialVersionUID = 1L;
 
     public enum CK_ACTIONS {UPLOADER, FILEBROWSER, LINKBROWSER, UNKNOWN};

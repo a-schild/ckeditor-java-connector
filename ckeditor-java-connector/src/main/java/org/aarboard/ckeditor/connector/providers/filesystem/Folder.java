@@ -180,8 +180,8 @@ import org.aarboard.ckeditor.connector.providers.IObject;
 import org.aarboard.ckeditor.connector.providers.ProviderStatus;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -189,7 +189,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class Folder implements IFolder, Serializable
 {
-    private final static Log LOG= LogFactory.getLog(Folder.class);
+    private final static Logger LOG = LoggerFactory.getLogger(Folder.class);
     private static final long serialVersionUID = 2L;
 
     private final FileSystemProvider    _fsProvider;

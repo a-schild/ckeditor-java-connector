@@ -217,13 +217,12 @@ import org.aarboard.ckeditor.connector.providers.filesystem.FileSystemProvider;
 import org.aarboard.ckeditor.connector.upload.FileUploader;
 import org.aarboard.ckeditor.connector.upload.SimpleFileUploader;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.vaadin.addon.borderlayout.BorderLayout;
 import org.vaadin.dialogs.ConfirmDialog;
 import org.vaadin.notifique.Notifique;
 import org.vaadin.notifique.Notifique.Message;
-// import org.vaadin.overlay.CustomOverlay;
 
 /**
  *
@@ -232,7 +231,7 @@ import org.vaadin.notifique.Notifique.Message;
 public class VaadinBrowser extends Application 
      implements FragmentChangedListener, HttpServletRequestListener
 {
-    private final static Log LOG= LogFactory.getLog(VaadinBrowser.class);
+    private final static Logger LOG = LoggerFactory.getLogger(VaadinBrowser.class);
 
     public static final String  JNDI_INITIAL_CONTEXT= "java:/comp/env"; // Root jndi context to use
 
