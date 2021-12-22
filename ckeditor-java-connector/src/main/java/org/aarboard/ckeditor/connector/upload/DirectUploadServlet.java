@@ -171,7 +171,9 @@ package org.aarboard.ckeditor.connector.upload;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
@@ -235,7 +237,9 @@ public class DirectUploadServlet extends HttpServlet
                 List<FileItem> items = upload.parseRequest(request);
                 for (FileItem fItem : items)
                 {
-                    File tmpFile= File.createTempFile("upload", "tmp");
+                    String tmpdir = System.getProperty("java.io.tmpdir");
+                    String tmpName= "upload-" + UUID.randomUUID()+"-tmp";
+                    File tmpFile= new File(tmpdir, tmpName);
                     fItem.write(tmpFile);
                     uploadStatus.add(rootFolder.handleUpload(tmpFile, fItem.getName(), fItem.getContentType(), fItem.getSize()));
                     tmpFile.delete();
