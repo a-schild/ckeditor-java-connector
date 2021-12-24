@@ -171,7 +171,6 @@ package org.aarboard.ckeditor.connector.upload;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import javax.servlet.ServletException;
@@ -215,9 +214,6 @@ public class DirectUploadServlet extends HttpServlet
     {
         CKEditorAction cAction= new CKEditorAction(request);
 
-        // Check that we have a file upload request
-        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
-
         if (cAction.getRequestedAction() == CKEditorAction.CK_ACTIONS.UPLOADER)
         {
             // Direct uploader
@@ -237,12 +233,22 @@ public class DirectUploadServlet extends HttpServlet
                 List<FileItem> items = upload.parseRequest(request);
                 for (FileItem fItem : items)
                 {
-                    String tmpdir = System.getProperty("java.io.tmpdir");
-                    String tmpName= "upload-" + UUID.randomUUID()+"-tmp";
-                    File tmpFile= new File(tmpdir, tmpName);
-                    fItem.write(tmpFile);
-                    uploadStatus.add(rootFolder.handleUpload(tmpFile, fItem.getName(), fItem.getContentType(), fItem.getSize()));
-                    tmpFile.delete();
+                    if (fItem.getFieldName().equals("ckCsrfToken"))
+                    {
+                        // Skip ckCsrfToken
+                    }
+                    else
+                    {
+                        String tmpdir = System.getProperty("java.io.tmpdir");
+                        String tmpName= "upload-" + UUID.randomUUID()+"-tmp";
+                        File tmpFile= new File(tmpdir, tmpName);
+                        fItem.write(tmpFile);
+                        LOG.debug("Upload found fieldName {} name {} contentType {} size {}", 
+                                fItem.getFieldName(), fItem.getName(),
+                                fItem.getContentType(), fItem.getSize());
+                        uploadStatus.add(rootFolder.handleUpload(tmpFile, fItem.getName(), fItem.getContentType(), fItem.getSize()));
+                        tmpFile.delete();
+                    }
                 }
                 if (!uploadStatus.isEmpty())
                 {
@@ -252,7 +258,7 @@ public class DirectUploadServlet extends HttpServlet
                     String message= null;
                     if (lastUpload.getStatus() == ProviderStatus.Status.FILE_RENAMED)
                     {
-                        message= "Uploaded file has been renamed to "+StringEscapeUtils.escapeJavaScript(uFile.getName())+"";
+                        message= "Uploaded file has been renamed to "+StringEscapeUtils.escapeJavaScript(uFile.getName());
                     }
 
                     sendStatus(out, cAction, uFile, message, lastUpload);
