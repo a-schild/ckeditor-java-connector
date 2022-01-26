@@ -218,8 +218,15 @@ public class DirectUploadServlet extends HttpServlet
         {
             // Direct uploader
             LOG.debug("Handle direct upload");
+            boolean answerAsJSON= false;
+            String uploadType= cAction.getType();
+            if (uploadType.contains("&responseType=json"))
+            {
+                uploadType= uploadType.substring(0, uploadType.indexOf('&'));
+                answerAsJSON= true;
+            }
             IProvider _folder= new FileSystemProvider();
-            IFolder rootFolder= _folder.getRootFolder(cAction.getType(), true);
+            IFolder rootFolder= _folder.getRootFolder(uploadType, true);
             // Create a factory for disk-based file items
             FileItemFactory factory = new DiskFileItemFactory();
 
@@ -261,7 +268,11 @@ public class DirectUploadServlet extends HttpServlet
                         message= "Uploaded file has been renamed to "+StringEscapeUtils.escapeJavaScript(uFile.getName());
                     }
 
-                    sendStatus(out, cAction, uFile, message, lastUpload);
+                    sendStatus(out, cAction, uFile, message, lastUpload, answerAsJSON);
+                    if (answerAsJSON)
+                    {
+                        response.setContentType("application/json");
+                    }
                 }
             }
             catch(FileUploadException ex)
@@ -318,16 +329,36 @@ public class DirectUploadServlet extends HttpServlet
 
     protected void sendStatus(ServletOutputStream out,
             CKEditorAction cAction, IObject uploadedFile, String message,
-            ProviderStatus uploaded) throws IOException
+            ProviderStatus uploaded,
+            boolean answerAsJSON) throws IOException
     {
-        out.println("<html>");
-        out.println("<script type=\"text/javascript\">");
-        out.println("//<![CDATA[");
-        String call= "window.parent.CKEDITOR.tools.callFunction("+cAction.getEditorCallback()+",'"+StringEscapeUtils.escapeJavaScript(uploadedFile.getURL())+"'"+(message != null ? ",'"+StringEscapeUtils.escapeJavaScript(message)+"'" : "")+");";
-        out.println(call);
-        out.println("//]]>");
-        out.println("</script>");
-        out.println("</html>");
-
+        if (answerAsJSON)
+        {
+            out.println("{");
+            out.println("\"uploaded\": 1,");
+            out.println("\"fileName\": \""+StringEscapeUtils.escapeJavaScript(uploadedFile.getName())+"\",");
+            out.println("\"url\": \""+StringEscapeUtils.escapeJavaScript(uploadedFile.getURL())+"\"");
+            if (message != null)
+            {
+                out.println("\"error\": {");
+                out.println("\"message\": \"");
+                out.println(StringEscapeUtils.escapeJavaScript(message));
+                out.println("\"}");
+            }
+            out.println("}");
+        }
+        else
+        {
+            out.println("<html>");
+            out.println("<script type=\"text/javascript\">");
+            out.println("//<![CDATA[");
+            String call= "window.parent.CKEDITOR.tools.callFunction("+cAction.getEditorCallback()+",'"+
+                    StringEscapeUtils.escapeJavaScript(uploadedFile.getURL())+"'"+
+                    (message != null ? ",'"+StringEscapeUtils.escapeJavaScript(message)+"'" : "")+");";
+            out.println(call);
+            out.println("//]]>");
+            out.println("</script>");
+            out.println("</html>");
+        }
     }
 }

@@ -4,7 +4,7 @@
   
     <groupId>org.aarboard</groupId>
     <artifactId>ckeditor-java-connector-project</artifactId>
-    <version>1.0.19</version>
+    <version>1.0.21-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>PARENT - ${project.artifactId}</name>
   
@@ -13,7 +13,7 @@
         <module>ckeditor-java-connector</module>
     </modules>
     <properties>
-        <revision>1.0.19</revision>
+        <revision>1.0.21-SNAPSHOT</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
