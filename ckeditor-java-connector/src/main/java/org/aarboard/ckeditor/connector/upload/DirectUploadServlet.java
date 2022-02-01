@@ -218,13 +218,8 @@ public class DirectUploadServlet extends HttpServlet
         {
             // Direct uploader
             LOG.debug("Handle direct upload");
-            boolean answerAsJSON= false;
+            boolean answerAsJSON= cAction.isJSONAnswer();
             String uploadType= cAction.getType();
-            if (uploadType.contains("&responseType=json"))
-            {
-                uploadType= uploadType.substring(0, uploadType.indexOf('&'));
-                answerAsJSON= true;
-            }
             IProvider _folder= new FileSystemProvider();
             IFolder rootFolder= _folder.getRootFolder(uploadType, true);
             // Create a factory for disk-based file items

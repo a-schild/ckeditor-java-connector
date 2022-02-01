@@ -190,6 +190,7 @@ public class CKEditorAction implements Serializable
     private String  _editorInstance= null;
     private int     _editorCallback= 0;
     private String  _langCode= null;
+    private boolean _responseJSON= false;
 
     public CKEditorAction(HttpServletRequest request)
     {
@@ -223,6 +224,7 @@ public class CKEditorAction implements Serializable
     private void parseURIFragment(String uriFragment)
     {
         _uriFragment = uriFragment;
+        LOG.debug("URI fragment: <{}>", uriFragment);
         String remainingPart= _uriFragment;
         if (remainingPart != null)
         {
@@ -279,6 +281,12 @@ public class CKEditorAction implements Serializable
                         remainingPart= remainingPart.substring(remainingPart.indexOf('?')+1);
                     }
                 }
+            }
+            if (_type != null && _type.contains("&"))
+            {
+                String endPart= _type.substring(_type.indexOf('&'));
+                _type= _type.substring(0, _type.indexOf('&')-1);
+                _responseJSON= endPart.contains("json");
             }
             if (remainingPart.startsWith("CKEditor="))
             {
@@ -369,5 +377,8 @@ public class CKEditorAction implements Serializable
         return _langCode;
     }
 
-
+    public boolean isJSONAnswer()
+    {
+        return _responseJSON;
+    }
 }
