@@ -5,17 +5,16 @@
     <parent>
         <groupId>org.aarboard</groupId>
         <artifactId>ckeditor-java-connector-project</artifactId>
-        <version>1.0.19</version>
+        <version>1.0.22</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <name>CORE - ${project.artifactId}</name>
     <artifactId>ckeditor-java</artifactId>
-    <version>1.0.19</version>
+    <version>1.0.22</version>
     <packaging>jar</packaging>
 
     <properties>
-        <commons-logging-api.version>1.1</commons-logging-api.version>        
-        <commons-lang.version>2.6</commons-lang.version>
+        <commons-text.version>1.9</commons-text.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
         <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
@@ -79,17 +78,10 @@
     </build>
 
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/commons-lang/commons-lang -->
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>${commons-lang.version}</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j-api.version}</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>${commons-text.version}</version>
         </dependency>
     </dependencies>
     <distributionManagement>

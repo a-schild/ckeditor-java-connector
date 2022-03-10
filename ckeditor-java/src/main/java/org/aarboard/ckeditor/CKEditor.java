@@ -170,7 +170,7 @@ package org.aarboard.ckeditor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 
 /**
@@ -234,7 +234,7 @@ public class CKEditor
         if (_value != null)
         {
             // Make sure we escape all HTML special char stuff
-            sB.append(StringEscapeUtils.escapeHtml(_value));
+            sB.append(StringEscapeUtils.escapeHtml4(_value));
         }
         sB.append("</textarea>\n");
         sB.append("<script type=\"text/javascript\">\n");
@@ -256,9 +256,9 @@ public class CKEditor
                 firstKey= false;
             }
             sB.append(" ");
-            sB.append(StringEscapeUtils.escapeJavaScript(configKey));
+            sB.append(StringEscapeUtils.escapeEcmaScript​(configKey));
             sB.append(" : '");
-            sB.append(StringEscapeUtils.escapeJavaScript(value));
+            sB.append(StringEscapeUtils.escapeEcmaScript​(value));
             sB.append("'");
         }
         for (String configKey : _configBoolean.keySet())
@@ -273,7 +273,7 @@ public class CKEditor
                 firstKey= false;
             }
             sB.append(" ");
-            sB.append(StringEscapeUtils.escapeJavaScript(configKey));
+            sB.append(StringEscapeUtils.escapeEcmaScript​(configKey));
             sB.append(" : ");
             sB.append(value.toString());
         }
@@ -289,7 +289,7 @@ public class CKEditor
                 firstKey= false;
             }
             sB.append(" ");
-            sB.append(StringEscapeUtils.escapeJavaScript("toolbar_"+toolbarName));
+            sB.append(StringEscapeUtils.escapeEcmaScript​("toolbar_"+toolbarName));
             sB.append(" : ");
             sB.append(value);  // Don't escape this one
         }
@@ -316,7 +316,7 @@ public class CKEditor
                     sB.append(",");
                 }
                 sB.append(" '");
-                sB.append(StringEscapeUtils.escapeJavaScript(template));
+                sB.append(StringEscapeUtils.escapeEcmaScript​(template));
                 sB.append("' ");
             }
             sB.append("]");
@@ -345,7 +345,7 @@ public class CKEditor
                 // firstKey= false;
             }
             sB.append("stylesSet: ");
-            sB.append(StringEscapeUtils.escapeJavaScript(_stylesSetURL));
+            sB.append(StringEscapeUtils.escapeEcmaScript​(_stylesSetURL));
         }
 
         sB.append("});\n");

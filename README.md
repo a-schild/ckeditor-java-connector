@@ -12,6 +12,14 @@ Usage with maven:
 <dependency>
     <groupId>org.aarboard</groupId>
     <artifactId>ckeditor-java-connector</artifactId>
-    <version>1.0-21</version>
+    <version>1.0-22</version>
+</dependency>
+```
+
+``` XML
+<dependency>
+    <groupId>org.aarboard</groupId>
+    <artifactId>ckeditor-java</artifactId>
+    <version>1.0-22</version>
 </dependency>
 ```
