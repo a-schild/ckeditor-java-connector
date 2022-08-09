@@ -5,12 +5,12 @@
     <parent>
         <groupId>org.aarboard</groupId>
         <artifactId>ckeditor-java-connector-project</artifactId>
-        <version>1.0.23-SNAPSHOT</version>
+        <version>1.0.23</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <name>CORE - ${project.artifactId}</name>
     <artifactId>ckeditor-java</artifactId>
-    <version>1.0.23-SNAPSHOT</version>
+    <version>1.0.23</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -46,7 +46,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>${maven-jar-plugin.version}</version>
             </plugin>
-                        <plugin>
+            <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>${maven-deploy-plugin.version}</version>
                 <executions>
