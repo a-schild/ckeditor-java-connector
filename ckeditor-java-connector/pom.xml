@@ -37,7 +37,7 @@
         <commons-io.version>2.7</commons-io.version>
         <confirmdialog.version>1.2.1</confirmdialog.version>
         <borderlayout.version>0.3</borderlayout.version>
-        <commons-fileupload.version>1.4</commons-fileupload.version>
+        <commons-fileupload.version>1.5</commons-fileupload.version>
         <javax-validation.version>1.0.0.GA</javax-validation.version>
     </properties>
 
