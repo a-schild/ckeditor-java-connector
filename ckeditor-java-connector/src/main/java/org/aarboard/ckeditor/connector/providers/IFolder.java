@@ -168,7 +168,7 @@
 
 package org.aarboard.ckeditor.connector.providers;
 
-import com.vaadin.data.Item;
+import com.vaadin.v7.data.Item;
 import java.io.File;
 import java.util.List;
 

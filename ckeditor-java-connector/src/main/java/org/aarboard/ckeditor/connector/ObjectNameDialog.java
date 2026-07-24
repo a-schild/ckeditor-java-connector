@@ -168,6 +168,7 @@
 
 package org.aarboard.ckeditor.connector;
 
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -198,22 +199,22 @@ public class ObjectNameDialog extends Window implements ClickListener
         _rename= rename;
         _callback= callback;
         setModal(true);
-        setWidth(40, UNITS_EM);
-        setHeight(10, UNITS_EM);
+        setWidth(40, Unit.EM);
+        setHeight(10, Unit.EM);
         setCaption(title);
         HorizontalLayout hLayout= new HorizontalLayout();
         hLayout.setSizeFull();
-        addComponent(hLayout);
+        setContent(hLayout);
         VerticalLayout vl= new VerticalLayout();
         _textField=new TextField();
         _textField.setCaption(caption);
         _textField.setValue(_originalName);
-        _textField.setWidth(100, UNITS_PERCENTAGE);
+        _textField.setWidth(100, Unit.PERCENTAGE);
         vl.addComponent(_textField);
         hLayout.addComponent(vl);
         hLayout.setExpandRatio(vl, 1);
         final Button save= new Button(_rename ? "Rename" : "Create");
-        save.addListener(this);
+        save.addClickListener(this);
         hLayout.addComponent(save);
         hLayout.setComponentAlignment(save, Alignment.BOTTOM_RIGHT);
     }
@@ -222,11 +223,8 @@ public class ObjectNameDialog extends Window implements ClickListener
     @Override
     public void buttonClick(ClickEvent event)
     {
-        if (getParent() != null)
-        {
-            getParent().removeWindow(this);
-        }
-        _callback.newName((String)_textField.getValue());
+        close();
+        _callback.newName(_textField.getValue());
     }
 
 

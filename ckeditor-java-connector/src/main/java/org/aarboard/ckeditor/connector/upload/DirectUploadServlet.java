@@ -189,7 +189,7 @@ import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -260,7 +260,7 @@ public class DirectUploadServlet extends HttpServlet
                     String message= null;
                     if (lastUpload.getStatus() == ProviderStatus.Status.FILE_RENAMED)
                     {
-                        message= "Uploaded file has been renamed to "+StringEscapeUtils.escapeJavaScript(uFile.getName());
+                        message= "Uploaded file has been renamed to "+StringEscapeUtils.escapeEcmaScript(uFile.getName());
                     }
 
                     sendStatus(out, cAction, uFile, message, lastUpload, answerAsJSON);
@@ -331,13 +331,13 @@ public class DirectUploadServlet extends HttpServlet
         {
             out.println("{");
             out.println("\"uploaded\": 1,");
-            out.println("\"fileName\": \""+StringEscapeUtils.escapeJavaScript(uploadedFile.getName())+"\",");
-            out.println("\"url\": \""+StringEscapeUtils.escapeJavaScript(uploadedFile.getURL())+"\"");
+            out.println("\"fileName\": \""+StringEscapeUtils.escapeEcmaScript(uploadedFile.getName())+"\",");
+            out.println("\"url\": \""+StringEscapeUtils.escapeEcmaScript(uploadedFile.getURL())+"\"");
             if (message != null)
             {
                 out.println("\"error\": {");
                 out.println("\"message\": \"");
-                out.println(StringEscapeUtils.escapeJavaScript(message));
+                out.println(StringEscapeUtils.escapeEcmaScript(message));
                 out.println("\"}");
             }
             out.println("}");
@@ -348,8 +348,8 @@ public class DirectUploadServlet extends HttpServlet
             out.println("<script type=\"text/javascript\">");
             out.println("//<![CDATA[");
             String call= "window.parent.CKEDITOR.tools.callFunction("+cAction.getEditorCallback()+",'"+
-                    StringEscapeUtils.escapeJavaScript(uploadedFile.getURL())+"'"+
-                    (message != null ? ",'"+StringEscapeUtils.escapeJavaScript(message)+"'" : "")+");";
+                    StringEscapeUtils.escapeEcmaScript(uploadedFile.getURL())+"'"+
+                    (message != null ? ",'"+StringEscapeUtils.escapeEcmaScript(message)+"'" : "")+");";
             out.println(call);
             out.println("//]]>");
             out.println("</script>");

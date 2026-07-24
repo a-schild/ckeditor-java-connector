@@ -168,7 +168,7 @@
 
 package org.aarboard.ckeditor.connector.providers.filesystem;
 
-import com.vaadin.data.Property;
+import com.vaadin.v7.data.Property;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;

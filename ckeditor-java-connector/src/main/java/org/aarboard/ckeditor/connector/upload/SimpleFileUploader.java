@@ -38,8 +38,8 @@ public class SimpleFileUploader extends CustomComponent
         upload.setButtonCaption("Upload");
 
         // Listen for events regarding the success of upload.
-        upload.addListener((Upload.SucceededListener) this);
-        upload.addListener((Upload.FailedListener) this);
+        upload.addSucceededListener(this);
+        upload.addFailedListener(this);
 
         setCompositionRoot(upload);
     }

@@ -168,10 +168,10 @@
 
 package org.aarboard.ckeditor.connector;
 
-import com.vaadin.data.Container;
-import com.vaadin.data.Item;
-import com.vaadin.data.Property;
-import com.vaadin.ui.Label;
+import com.vaadin.v7.data.Container;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.data.Property;
+import com.vaadin.v7.data.util.ObjectProperty;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -232,8 +232,7 @@ public class FolderContainer implements Container, Container.Hierarchical,
     public Property getContainerProperty(Object itemId, Object propertyId)
     {
         IFolder item= (IFolder) itemId;
-        Label retVal= new Label(item.getName());
-        return retVal;
+        return new ObjectProperty<>(item.getName());
     }
 
     @Override
@@ -376,15 +375,29 @@ public class FolderContainer implements Container, Container.Hierarchical,
     }
 
     @Override
-    public void addListener(ItemSetChangeListener listener)
+    public void addItemSetChangeListener(ItemSetChangeListener listener)
     {
         _changeListeners.add(listener);
     }
 
     @Override
-    public void removeListener(ItemSetChangeListener listener)
+    @Deprecated
+    public void addListener(ItemSetChangeListener listener)
+    {
+        addItemSetChangeListener(listener);
+    }
+
+    @Override
+    public void removeItemSetChangeListener(ItemSetChangeListener listener)
     {
         _changeListeners.remove(listener);
+    }
+
+    @Override
+    @Deprecated
+    public void removeListener(ItemSetChangeListener listener)
+    {
+        removeItemSetChangeListener(listener);
     }
 
     protected void fireItemSetChanged()

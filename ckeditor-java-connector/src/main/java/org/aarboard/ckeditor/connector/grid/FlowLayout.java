@@ -4,14 +4,14 @@
  */
 package org.aarboard.ckeditor.connector.grid;
 
-import com.vaadin.data.Container;
-import com.vaadin.data.Container.ItemSetChangeEvent;
-import com.vaadin.data.Container.PropertySetChangeEvent;
-import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.terminal.Resource;
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.Resource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
+import com.vaadin.v7.data.Container;
+import com.vaadin.v7.data.Container.ItemSetChangeEvent;
+import com.vaadin.v7.data.Container.PropertySetChangeEvent;
+import com.vaadin.v7.data.util.IndexedContainer;
 import org.aarboard.ckeditor.connector.providers.IObject;
 import org.aarboard.ckeditor.connector.providers.IThumbnailProvider;
 
@@ -25,13 +25,13 @@ public class FlowLayout extends CssLayout implements Container.ItemSetChangeList
     protected IndexedContainer   _dataSource= null;
     protected String        _colName;
     protected ColumnGenerator _colGen;
-    
-    public FlowLayout() 
+
+    public FlowLayout()
     {
     }
 
     @Override
-    protected String getCss(Component c) 
+    protected String getCss(Component c)
     {
         return "float: left";
     }
@@ -41,30 +41,27 @@ public class FlowLayout extends CssLayout implements Container.ItemSetChangeList
         _dataSource= dataSource;
         if (_dataSource != null)
         {
-            _dataSource.addListener((Container.ItemSetChangeListener) this);
+            _dataSource.addItemSetChangeListener(this);
         }
-        /*
-        _dataSource.addListener((Container.PropertySetChangeListener)this);
-        */
         refreshContainer();
     }
-    
+
     public Container getContainerDataSource()
     {
         return _dataSource;
     }
 
     @Override
-    public void containerItemSetChange(ItemSetChangeEvent event) 
+    public void containerItemSetChange(ItemSetChangeEvent event)
     {
         refreshContainer();
     }
 
-    public void containerPropertySetChange(PropertySetChangeEvent event) 
+    public void containerPropertySetChange(PropertySetChangeEvent event)
     {
         refreshContainer();
     }
-    
+
     protected void refreshContainer()
     {
         removeAllComponents();
@@ -89,16 +86,16 @@ public class FlowLayout extends CssLayout implements Container.ItemSetChangeList
             }
         }
     }
-    
+
     public void addGeneratedColumn(String colName, ColumnGenerator colGen)
     {
         _colName= colName;
         _colGen= colGen;
     }
-    
+
     public interface ColumnGenerator
     {
         public Component generateCell(FlowLayout source, Object itemId, Object columnId);
     }
-    
-} 
+
+}

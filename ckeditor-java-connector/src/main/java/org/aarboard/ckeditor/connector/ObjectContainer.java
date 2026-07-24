@@ -168,11 +168,11 @@
 
 package org.aarboard.ckeditor.connector;
 
-import com.vaadin.Application;
-import com.vaadin.data.Container.ItemSetChangeListener;
-import com.vaadin.data.Item;
-import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.UI;
+import com.vaadin.v7.data.Container.ItemSetChangeListener;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.data.util.IndexedContainer;
 import java.util.ArrayList;
 import java.util.List;
 import org.aarboard.ckeditor.connector.providers.IFolder;
@@ -186,7 +186,7 @@ public class ObjectContainer extends IndexedContainer
 {
     private static final long serialVersionUID = 1L;
     protected IFolder   _folder;
-    protected Application   _application;
+    protected UI   _application;
     protected List<IObject> _children;
 
     protected ArrayList<ItemSetChangeListener>  _changeListeners= new ArrayList<>();
@@ -195,7 +195,7 @@ public class ObjectContainer extends IndexedContainer
 
 
 
-    public ObjectContainer(IFolder folder, Application app)
+    public ObjectContainer(IFolder folder, UI app)
     {
         _folder = folder;
         _application= app;
