@@ -169,6 +169,7 @@
 package org.aarboard.ckeditor.connector.providers.filesystem;
 
 import java.io.File;
+import java.io.Serial;
 import java.io.Serializable;
 import org.aarboard.ckeditor.connector.VaadinBrowser;
 import org.aarboard.ckeditor.connector.providers.IFolder;
@@ -180,6 +181,7 @@ import org.aarboard.ckeditor.connector.providers.IProvider;
  */
 public class FileSystemProvider implements IProvider, Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
     protected File _rootNode;       // Absolute root, without Image/File etc. prefix
     protected File _browseRootNode; // Root including type

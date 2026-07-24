@@ -7,15 +7,13 @@ package org.aarboard.ckeditor.connector.upload;
 
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Upload;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+
+import java.io.*;
+
+import lombok.extern.slf4j.Slf4j;
 import org.aarboard.ckeditor.connector.VaadinBrowser;
 import org.aarboard.ckeditor.connector.providers.IFolder;
 import org.aarboard.ckeditor.connector.providers.ProviderStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Upload area for a folder.
@@ -27,21 +25,22 @@ import org.slf4j.LoggerFactory;
  *
  * @author a.schild
  */
+@Slf4j
 public class FileUploader extends CustomComponent
                         implements Upload.SucceededListener,
                                    Upload.FailedListener,
                                    Upload.Receiver
 {
+    @Serial
     private static final long serialVersionUID = 1L;
-    private final static Logger LOG = LoggerFactory.getLogger(FileUploader.class);
-    protected final IFolder   _parentFolder;
-    protected final VaadinBrowser    _mainWindow;
-    protected File _uploadFile;
+    protected final IFolder parentFolder;
+    protected final VaadinBrowser mainWindow;
+    protected File uploadFile;
 
     public FileUploader(VaadinBrowser mainWindow, IFolder parent)
     {
-        _mainWindow= mainWindow;
-        _parentFolder= parent;
+        this.mainWindow = mainWindow;
+        parentFolder = parent;
         final Upload upload = new Upload("Dateiupload", this);
 
         // Use a custom button caption instead of plain "Upload".
@@ -55,31 +54,31 @@ public class FileUploader extends CustomComponent
 
     protected void handleFile(File file, String fileName, String mimeType, long length)
     {
-        ProviderStatus status= _parentFolder.handleUpload(file, fileName, mimeType, length);
+        ProviderStatus status= parentFolder.handleUpload(file, fileName, mimeType, length);
         if (status.getStatus() == ProviderStatus.Status.FILE_RENAMED)
         {
-            _mainWindow.showWarningNotification("A file with name '"+fileName
+            mainWindow.showWarningNotification("A file with name '"+fileName
                     +"' already existed.<br />The new file has been renamed to '"+status.getMessage()+"'");
         }
         else if(status.getStatus() == ProviderStatus.Status.OPERATION_OK)
         {
             // Not needed _mainWindow.showInfoNotification("File '"+fileName+"' uploaded");
         }
-        _mainWindow.updateFolder();
+        mainWindow.updateFolder();
     }
 
     @Override
     public void uploadSucceeded(Upload.SucceededEvent event)
     {
-        handleFile(_uploadFile, event.getFilename(), event.getMIMEType(), event.getLength());
-        _uploadFile= null;
+        handleFile(uploadFile, event.getFilename(), event.getMIMEType(), event.getLength());
+        uploadFile = null;
     }
 
     @Override
     public void uploadFailed(Upload.FailedEvent event)
     {
-        _mainWindow.showErrorNotification("Upload failed");
-        _uploadFile= null;
+        mainWindow.showErrorNotification("Upload failed");
+        uploadFile = null;
     }
 
     @Override
@@ -88,13 +87,13 @@ public class FileUploader extends CustomComponent
         FileOutputStream fos; // Output stream to write to
         try
         {
-            _uploadFile = File.createTempFile("aarcat_up", "image");
+            uploadFile = File.createTempFile("aarcat_up", "image");
             // Open the file for writing.
-            fos = new FileOutputStream(_uploadFile);
+            fos = new FileOutputStream(uploadFile);
         }
         catch (final IOException e)
         {
-            LOG.error("Upload receive failed", e);
+            log.error("Upload receive failed", e);
             return null;
         }
         return fos; // Return the output stream to write to

@@ -32,6 +32,7 @@
         <commons-io.version>2.7</commons-io.version>
         <commons-fileupload.version>1.5</commons-fileupload.version>
         <confirmdialog.version>3.2.0</confirmdialog.version>
+        <lombok.version>1.18.38</lombok.version>
         <javax-servlet.version>3.1.0</javax-servlet.version>
     </properties>
 
@@ -54,6 +55,13 @@
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
             <plugin>
@@ -91,6 +99,12 @@
             <groupId>org.vaadin.addon</groupId>
             <artifactId>confirmdialog</artifactId>
             <version>${confirmdialog.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

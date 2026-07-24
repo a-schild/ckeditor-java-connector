@@ -168,29 +168,39 @@
 
 package org.aarboard.ckeditor.connector;
 
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+
+import java.io.Serial;
 import java.io.Serializable;
 import javax.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author a.schild
  */
+@Slf4j
 public class CKEditorAction implements Serializable
 {
-    private final static Logger LOG = LoggerFactory.getLogger(CKEditorAction.class);
+    @Serial
     private static final long serialVersionUID = 1L;
 
-    public enum CK_ACTIONS {UPLOADER, FILEBROWSER, LINKBROWSER, UNKNOWN};
-    private String        _uriFragment;
-    private CK_ACTIONS _requestedAction = CK_ACTIONS.UNKNOWN;
-    private String _type = null;
-    private String _remainingPart = null;
-    private String  _editorInstance= null;
-    private int     _editorCallback= 0;
-    private String  _langCode= null;
-    private boolean _responseJSON= false;
+    public enum CK_ACTIONS {UPLOADER, FILEBROWSER, LINKBROWSER, UNKNOWN}
+    @Getter
+    private String uriFragment;
+    @Getter
+    private CK_ACTIONS requestedAction = CK_ACTIONS.UNKNOWN;
+    @Getter
+    private String type = null;
+    @Getter
+    private String remainingPart = null;
+    @Getter
+    private String editorInstance = null;
+    @Getter
+    private int editorCallback = 0;
+    @Getter
+    private String langCode = null;
+    private boolean responseJSON = false;
 
     public CKEditorAction(HttpServletRequest request)
     {
@@ -205,27 +215,27 @@ public class CKEditorAction implements Serializable
     public CKEditorAction(String newFragment, HttpServletRequest request)
     {
         parseURIFragment(newFragment);
-        if (_editorInstance == null)
+        if (editorInstance == null)
         {
             // Else already assigned from URI fragment
-            _editorInstance= request.getParameter("CKEditor");
+            editorInstance = request.getParameter("CKEditor");
         }
         String sEditorCallback= request.getParameter("CKEditorFuncNum");
         if (sEditorCallback != null)
         {
-            _editorCallback= Integer.parseInt(sEditorCallback);
+            editorCallback = Integer.parseInt(sEditorCallback);
         }
-        if (_langCode == null)
+        if (langCode == null)
         {
-            _langCode= request.getParameter("langCode");
+            langCode = request.getParameter("langCode");
         }
     }
     
     private void parseURIFragment(String uriFragment)
     {
-        _uriFragment = uriFragment;
-        LOG.debug("URI fragment: <{}>", uriFragment);
-        String remainingPart= _uriFragment;
+        this.uriFragment = uriFragment;
+        log.debug("URI fragment: <{}>", uriFragment);
+        String remainingPart= this.uriFragment;
         if (remainingPart != null)
         {
             if (remainingPart.indexOf('/') == 0)
@@ -248,15 +258,15 @@ public class CKEditorAction implements Serializable
                 }
                 if (actionPart.equalsIgnoreCase(CK_ACTIONS.UPLOADER.name()))
                 {
-                    _requestedAction= CK_ACTIONS.UPLOADER;
+                    requestedAction = CK_ACTIONS.UPLOADER;
                 }
                 else if(actionPart.equalsIgnoreCase(CK_ACTIONS.FILEBROWSER.name()))
                 {
-                    _requestedAction= CK_ACTIONS.FILEBROWSER;
+                    requestedAction = CK_ACTIONS.FILEBROWSER;
                 }
                 else if(actionPart.equalsIgnoreCase(CK_ACTIONS.LINKBROWSER.name()))
                 {
-                    _requestedAction= CK_ACTIONS.LINKBROWSER;
+                    requestedAction = CK_ACTIONS.LINKBROWSER;
                 }
                 if (remainingPart.indexOf('/') != -1)
                 {
@@ -277,28 +287,28 @@ public class CKEditorAction implements Serializable
                     // Parse type
                     if (remainingPart != null && remainingPart.indexOf('?') != -1)
                     {
-                        _type= remainingPart.substring(0, remainingPart.indexOf('?'));
+                        type = remainingPart.substring(0, remainingPart.indexOf('?'));
                         remainingPart= remainingPart.substring(remainingPart.indexOf('?')+1);
                     }
                 }
             }
-            if (_type != null && _type.contains("&"))
+            if (type != null && type.contains("&"))
             {
-                String endPart= _type.substring(_type.indexOf('&'));
-                _type= _type.substring(0, _type.indexOf('&')-1);
-                _responseJSON= endPart.contains("json");
+                String endPart= type.substring(type.indexOf('&'));
+                type = type.substring(0, type.indexOf('&')-1);
+                responseJSON = endPart.contains("json");
             }
             if (remainingPart.startsWith("CKEditor="))
             {
                 int endPos= remainingPart.indexOf('&');
                 if (endPos != -1)
                 {
-                    _editorInstance= remainingPart.substring(9, endPos);
+                    editorInstance = remainingPart.substring(9, endPos);
                     remainingPart= remainingPart.substring(endPos+1);
                 }
                 else
                 {
-                    _editorInstance= remainingPart.substring(9);
+                    editorInstance = remainingPart.substring(9);
                     remainingPart= "";
                 }
             }
@@ -308,7 +318,7 @@ public class CKEditorAction implements Serializable
                 if (endPos != -1)
                 {
                     String editorFuncNo= remainingPart.substring(16, endPos);
-                    _editorCallback= Integer.parseInt(editorFuncNo);
+                    editorCallback = Integer.parseInt(editorFuncNo);
                     remainingPart= remainingPart.substring(endPos+1);
                 }
             }
@@ -317,68 +327,21 @@ public class CKEditorAction implements Serializable
                 int endPos= remainingPart.indexOf('&');
                 if (endPos != -1)
                 {
-                    _langCode= remainingPart.substring(9, endPos);
+                    langCode = remainingPart.substring(9, endPos);
                     remainingPart= remainingPart.substring(endPos+1);
                 }
                 else
                 {
-                    _langCode= remainingPart.substring(9);
+                    langCode = remainingPart.substring(9);
                     remainingPart= null;
                 }
             }
-            _remainingPart= remainingPart;
+            this.remainingPart = remainingPart;
         }
-    }
-
-    /**
-     * @return the _uriFragment
-     */
-    public String getUriFragment()
-    {
-        return _uriFragment;
-    }
-
-    /**
-     * @return the _requetedAction
-     */
-    public CK_ACTIONS getRequestedAction()
-    {
-        return _requestedAction;
-    }
-
-    /**
-     * @return the _type
-     */
-    public String getType()
-    {
-        return _type;
-    }
-
-    /**
-     * @return the _remainingPart
-     */
-    public String getRemainingPart()
-    {
-        return _remainingPart;
-    }
-
-    public int getEditorCallback()
-    {
-        return _editorCallback;
-    }
-
-    public String getEditorInstance()
-    {
-        return _editorInstance;
-    }
-
-    public String getLangCode()
-    {
-        return _langCode;
     }
 
     public boolean isJSONAnswer()
     {
-        return _responseJSON;
+        return responseJSON;
     }
 }

@@ -170,6 +170,7 @@ package org.aarboard.ckeditor.connector.upload;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -178,6 +179,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import lombok.extern.slf4j.Slf4j;
 import org.aarboard.ckeditor.connector.CKEditorAction;
 import org.aarboard.ckeditor.connector.providers.IFolder;
 import org.aarboard.ckeditor.connector.providers.IObject;
@@ -197,9 +200,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author a.schild
  */
+@Slf4j
 public class DirectUploadServlet extends HttpServlet
 {
-    private final static Logger LOG = LoggerFactory.getLogger(DirectUploadServlet.class);
+    @Serial
     private static final long serialVersionUID = 1L;
    
     /** 
@@ -217,7 +221,7 @@ public class DirectUploadServlet extends HttpServlet
         if (cAction.getRequestedAction() == CKEditorAction.CK_ACTIONS.UPLOADER)
         {
             // Direct uploader
-            LOG.debug("Handle direct upload");
+            log.debug("Handle direct upload");
             boolean answerAsJSON= cAction.isJSONAnswer();
             String uploadType= cAction.getType();
             IProvider _folder= new FileSystemProvider();
@@ -245,7 +249,7 @@ public class DirectUploadServlet extends HttpServlet
                         String tmpName= "upload-" + UUID.randomUUID()+"-tmp";
                         File tmpFile= new File(tmpdir, tmpName);
                         fItem.write(tmpFile);
-                        LOG.debug("Upload found fieldName {} name {} contentType {} size {}", 
+                        log.debug("Upload found fieldName {} name {} contentType {} size {}",
                                 fItem.getFieldName(), fItem.getName(),
                                 fItem.getContentType(), fItem.getSize());
                         uploadStatus.add(rootFolder.handleUpload(tmpFile, fItem.getName(), fItem.getContentType(), fItem.getSize()));
@@ -272,16 +276,16 @@ public class DirectUploadServlet extends HttpServlet
             }
             catch(FileUploadException ex)
             {
-                LOG.error("Error in file upload", ex);
+                log.error("Error in file upload", ex);
             }
             catch(Exception ex)
             {
-                LOG.error("Error in upload", ex);
+                log.error("Error in upload", ex);
             }
         }
         else
         {
-            LOG.warn("Invalid request sent "+cAction.getUriFragment());
+            log.warn("Invalid request sent "+cAction.getUriFragment());
             response.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
     } 

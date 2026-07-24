@@ -15,16 +15,19 @@ import com.vaadin.v7.data.util.IndexedContainer;
 import org.aarboard.ckeditor.connector.providers.IObject;
 import org.aarboard.ckeditor.connector.providers.IThumbnailProvider;
 
+import java.io.Serial;
+
 /**
  *
  * @author a.schild
  */
 public class FlowLayout extends CssLayout implements Container.ItemSetChangeListener
 {
+    @Serial
     private static final long serialVersionUID = 1L;
     protected IndexedContainer   _dataSource= null;
-    protected String        _colName;
-    protected ColumnGenerator _colGen;
+    protected String colName;
+    protected ColumnGenerator colGen;
 
     public FlowLayout()
     {
@@ -71,16 +74,15 @@ public class FlowLayout extends CssLayout implements Container.ItemSetChangeList
             {
                 IObject iObj= (IObject) obj;
                 Resource lIcon= null;
-                if (obj instanceof IThumbnailProvider)
+                if (obj instanceof IThumbnailProvider iconProvider)
                 {
-                    IThumbnailProvider iconProvider= (IThumbnailProvider) obj;
                     lIcon= iconProvider.getThumbnail(-1, 60);
                 }
                 if (lIcon == null)
                 {
                     lIcon= new ThemeResource("../runo/icons/64/document.png");
                 }
-                Component cmp= _colGen.generateCell(this, obj, _colName);
+                Component cmp= colGen.generateCell(this, obj, colName);
                 GridItem gid= new GridItem(lIcon, iObj.getName(), cmp);
                 addComponent(gid);
             }
@@ -89,8 +91,8 @@ public class FlowLayout extends CssLayout implements Container.ItemSetChangeList
 
     public void addGeneratedColumn(String colName, ColumnGenerator colGen)
     {
-        _colName= colName;
-        _colGen= colGen;
+        this.colName = colName;
+        this.colGen = colGen;
     }
 
     public interface ColumnGenerator

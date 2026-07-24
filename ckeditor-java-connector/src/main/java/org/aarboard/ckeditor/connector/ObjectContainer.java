@@ -170,9 +170,10 @@ package org.aarboard.ckeditor.connector;
 
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.data.Container.ItemSetChangeListener;
 import com.vaadin.v7.data.Item;
 import com.vaadin.v7.data.util.IndexedContainer;
+
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import org.aarboard.ckeditor.connector.providers.IFolder;
@@ -184,12 +185,13 @@ import org.aarboard.ckeditor.connector.providers.IObject;
  */
 public class ObjectContainer extends IndexedContainer
 {
+    @Serial
     private static final long serialVersionUID = 1L;
-    protected IFolder   _folder;
-    protected UI   _application;
-    protected List<IObject> _children;
+    protected IFolder folder;
+    protected UI application;
+    protected List<IObject> children;
 
-    protected ArrayList<ItemSetChangeListener>  _changeListeners= new ArrayList<>();
+    protected ArrayList<ItemSetChangeListener> changeListeners = new ArrayList<>();
     
     public static final Object OBJECT_PROPERTY_NAME = "name";
 
@@ -197,8 +199,8 @@ public class ObjectContainer extends IndexedContainer
 
     public ObjectContainer(IFolder folder, UI app)
     {
-        _folder = folder;
-        _application= app;
+        this.folder = folder;
+        application = app;
         
         addContainerProperty(OBJECT_PROPERTY_NAME, Label.class, null);
 
@@ -224,8 +226,8 @@ public class ObjectContainer extends IndexedContainer
     public void refresh()
     {
         removeAllItems();
-        _children= _folder.getChildrenObjects();
-        for (IObject obj : _children)
+        children = folder.getChildrenObjects();
+        for (IObject obj : children)
         {
             Item item= addItem(obj);
             

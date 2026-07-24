@@ -12,15 +12,18 @@ import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
 
+import java.io.Serial;
+
 /**
  *
  * @author a.schild
  */
 public class GridItem extends GridLayout
 {
+    @Serial
     private static final long serialVersionUID = 1L;
-    public final float ICON_HEIGHT= 10.0f;
-    public final float GRID_HEIGHT= ICON_HEIGHT+3.2f;
+    public static final float ICON_HEIGHT= 10.0f;
+    public static final float GRID_HEIGHT= ICON_HEIGHT+3.2f;
 
     public GridItem(Resource rsc, String title, Component component)
     {

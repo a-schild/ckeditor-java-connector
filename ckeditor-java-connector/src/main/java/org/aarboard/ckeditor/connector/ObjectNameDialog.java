@@ -168,7 +168,6 @@
 
 package org.aarboard.ckeditor.connector;
 
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -178,26 +177,29 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
+import java.io.Serial;
+
 /**
  *
  * @author a.schild
  */
 public class ObjectNameDialog extends Window implements ClickListener
 {
+    @Serial
     private static final long serialVersionUID = 1L;
-    protected String    _originalName;
-    protected boolean   _rename;
-    protected TextField _textField;
-    protected ObjectNameDialogCallback _callback;
+    protected String originalName;
+    protected boolean rename;
+    protected TextField textField;
+    protected ObjectNameDialogCallback callback;
 
     public ObjectNameDialog(String title, String caption,
             String originalName,
             boolean rename,
             ObjectNameDialogCallback callback)
     {
-        _originalName = originalName;
-        _rename= rename;
-        _callback= callback;
+        this.originalName = originalName;
+        this.rename = rename;
+        this.callback = callback;
         setModal(true);
         setWidth(40, Unit.EM);
         setHeight(10, Unit.EM);
@@ -206,14 +208,14 @@ public class ObjectNameDialog extends Window implements ClickListener
         hLayout.setSizeFull();
         setContent(hLayout);
         VerticalLayout vl= new VerticalLayout();
-        _textField=new TextField();
-        _textField.setCaption(caption);
-        _textField.setValue(_originalName);
-        _textField.setWidth(100, Unit.PERCENTAGE);
-        vl.addComponent(_textField);
+        textField =new TextField();
+        textField.setCaption(caption);
+        textField.setValue(this.originalName);
+        textField.setWidth(100, Unit.PERCENTAGE);
+        vl.addComponent(textField);
         hLayout.addComponent(vl);
         hLayout.setExpandRatio(vl, 1);
-        final Button save= new Button(_rename ? "Rename" : "Create");
+        final Button save= new Button(this.rename ? "Rename" : "Create");
         save.addClickListener(this);
         hLayout.addComponent(save);
         hLayout.setComponentAlignment(save, Alignment.BOTTOM_RIGHT);
@@ -224,7 +226,7 @@ public class ObjectNameDialog extends Window implements ClickListener
     public void buttonClick(ClickEvent event)
     {
         close();
-        _callback.newName(_textField.getValue());
+        callback.newName(textField.getValue());
     }
 
 

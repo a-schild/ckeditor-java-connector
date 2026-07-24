@@ -174,14 +174,12 @@ import com.vaadin.server.Page;
 import com.vaadin.server.Page.UriFragmentChangedEvent;
 import com.vaadin.server.Page.UriFragmentChangedListener;
 import com.vaadin.server.Resource;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServletRequest;
 import com.vaadin.server.WebBrowser;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
@@ -195,11 +193,11 @@ import com.vaadin.v7.data.Container;
 import com.vaadin.v7.data.Property.ValueChangeEvent;
 import com.vaadin.v7.data.util.IndexedContainer;
 import com.vaadin.v7.event.ItemClickEvent;
-import com.vaadin.v7.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.v7.ui.Table;
 import com.vaadin.v7.ui.Table.ColumnGenerator;
 import com.vaadin.v7.ui.TreeTable;
 import java.io.File;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -207,6 +205,10 @@ import java.util.Iterator;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.servlet.http.HttpServletRequest;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.aarboard.ckeditor.connector.CKEditorAction.CK_ACTIONS;
 import org.aarboard.ckeditor.connector.grid.BorderLayout;
 import org.aarboard.ckeditor.connector.grid.FlowLayout;
@@ -219,28 +221,27 @@ import org.aarboard.ckeditor.connector.providers.filesystem.FileSystemProvider;
 import org.aarboard.ckeditor.connector.upload.FileUploader;
 import org.aarboard.ckeditor.connector.upload.SimpleFileUploader;
 import org.apache.commons.text.StringEscapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.vaadin.dialogs.ConfirmDialog;
 
 /**
  *
  * @author a.schild
  */
+@Slf4j
 public class VaadinBrowser extends UI
      implements UriFragmentChangedListener
 {
-    private final static Logger LOG = LoggerFactory.getLogger(VaadinBrowser.class);
 
     public static final String  JNDI_INITIAL_CONTEXT= "java:/comp/env"; // Root jndi context to use
 
     private static final Resource FOLDER = new ThemeResource(
             "../runo/icons/64/folder.png");
+    @Serial
     private static final long serialVersionUID = 1L;
     
     private static final String COOKIE_NAME= "VaadinBrowser.config.";
 
-    protected VerticalLayout    _leftPart;  /// Folder browser lives in this part
+    protected VerticalLayout    _leftPart;  // Folder browser lives in this part
     protected TreeTable         _folderBrowser;
     protected FolderContainer   _folderContainer;
     protected BorderLayout      _contentArea;
@@ -257,14 +258,15 @@ public class VaadinBrowser extends UI
     protected Component         _detailToolbar= null;
     
     protected boolean   _isFileBrowser= true;
-    private int         _splitterPosition= 200;
+    @Setter
+    @Getter
+    private int splitterPosition = 200;
     protected boolean   _showAsList= true;
-    
-    private String    _currentFragment;
-    private Label       _captionLabel;
-    //private BrowserCookies _cookies;
 
-    
+    @Getter
+    private String currentFragment;
+    private Label captionLabel;
+
     @Override
     protected void init(VaadinRequest request)
     {
@@ -274,7 +276,7 @@ public class VaadinBrowser extends UI
         String initialFragment= request.getParameter("fr");
         if (initialFragment != null)
         {
-            LOG.debug("Request fragment: "+initialFragment);
+            log.debug("Request fragment: "+initialFragment);
             HttpServletRequest httpRequest= (request instanceof VaadinServletRequest)
                     ? (VaadinServletRequest) request : null;
             internalFragmentChanged(initialFragment, httpRequest);
@@ -435,7 +437,7 @@ public class VaadinBrowser extends UI
                                     if (dialog.isConfirmed())
                                     {
                                         // Confirmed to continue
-                                        LOG.info("Delete folder <"+item.getName()+">");
+                                        log.info("Delete folder <"+item.getName()+">");
                                         if (item.handleFolderDelete())
                                         {
                                             // Also remove from detail view
@@ -560,7 +562,7 @@ public class VaadinBrowser extends UI
         buildContentPart();
     
         Page.getCurrent().addUriFragmentChangedListener(this);
-        LOG.warn("Initial fragment " + Page.getCurrent().getUriFragment());
+        log.warn("Initial fragment {}", Page.getCurrent().getUriFragment());
         
         _folderBrowser.addValueChangeListener((ValueChangeEvent event) -> {
             Object selected= event.getProperty().getValue();
@@ -585,7 +587,7 @@ public class VaadinBrowser extends UI
     @Override
     public void uriFragmentChanged(UriFragmentChangedEvent event)
     {
-        _currentFragment= event.getUriFragment();
+        currentFragment = event.getUriFragment();
         CKEditorAction currentAction= getCKEditorAction(getCurrentFragment());
 
         internalFragmentChanged(currentAction);
@@ -593,7 +595,7 @@ public class VaadinBrowser extends UI
     
     protected void internalFragmentChanged(String newFragment, HttpServletRequest request)
     {
-        _currentFragment= newFragment;
+        currentFragment = newFragment;
         CKEditorAction currentAction= getCKEditorAction(newFragment, request);
         internalFragmentChanged(currentAction);
     }
@@ -601,15 +603,15 @@ public class VaadinBrowser extends UI
     protected void internalFragmentChanged(CKEditorAction currentAction)
     {
         _currentAction= currentAction;
-        if (LOG.isDebugEnabled())
+        if (log.isDebugEnabled())
         {
-            LOG.debug("New fragment: "+_currentFragment);
-            LOG.debug("Requested action: <"+_currentAction.getRequestedAction().name()+">");
-            LOG.debug("Requested type: <"+_currentAction.getType()+">");
-            LOG.debug("Remaining remaining part: <"+_currentAction.getRemainingPart()+">");
-            LOG.debug("Remaining Instance: <"+_currentAction.getEditorInstance()+">");
-            LOG.debug("Remaining callback FuncNum: <"+_currentAction.getEditorCallback()+">");
-            LOG.debug("Remaining langCode: <"+_currentAction.getLangCode()+">");
+            log.debug("New fragment: "+ currentFragment);
+            log.debug("Requested action: <"+_currentAction.getRequestedAction().name()+">");
+            log.debug("Requested type: <"+_currentAction.getType()+">");
+            log.debug("Remaining remaining part: <"+_currentAction.getRemainingPart()+">");
+            log.debug("Remaining Instance: <"+_currentAction.getEditorInstance()+">");
+            log.debug("Remaining callback FuncNum: <"+_currentAction.getEditorCallback()+">");
+            log.debug("Remaining langCode: <"+_currentAction.getLangCode()+">");
         }
         if (null != _currentAction.getRequestedAction())
         switch (_currentAction.getRequestedAction()) {
@@ -685,19 +687,19 @@ public class VaadinBrowser extends UI
             {
                 _topArea.addComponent(tbDetail);
                 _topArea.addComponent(hl);
-                _captionLabel= new Label("Please select a folder from the left side");
-                hl.addComponent(_captionLabel);
-                _captionLabel.setWidth(100, Unit.PERCENTAGE);
-                hl.setExpandRatio(_captionLabel, 1);
+                captionLabel = new Label("Please select a folder from the left side");
+                hl.addComponent(captionLabel);
+                captionLabel.setWidth(100, Unit.PERCENTAGE);
+                hl.setExpandRatio(captionLabel, 1);
                 _contentArea.addComponent(_topArea, BorderLayout.Constraint.NORTH);
             }
             else
             {
-                _captionLabel= new Label("Please select a folder from the left side");
-                hl.addComponent(_captionLabel);
-                hl.setExpandRatio(_captionLabel, 1);
+                captionLabel = new Label("Please select a folder from the left side");
+                hl.addComponent(captionLabel);
+                hl.setExpandRatio(captionLabel, 1);
                 _topArea.addComponent(hl);
-                _captionLabel.setWidth(100, Unit.PERCENTAGE);
+                captionLabel.setWidth(100, Unit.PERCENTAGE);
                 _contentArea.addComponent(_topArea, BorderLayout.Constraint.NORTH);
             }
             Button listView= new Button();
@@ -748,7 +750,7 @@ public class VaadinBrowser extends UI
             }
             else
             {
-                LOG.debug("Selected : "+(obj != null ? obj.toString() : "Null"));
+                log.debug("Selected : "+(obj != null ? obj.toString() : "Null"));
             }
         });
         if (showDetail)
@@ -776,7 +778,7 @@ public class VaadinBrowser extends UI
     // http://stackoverflow.com/questions/1498628/how-can-you-integrate-a-custom-file-browser-uploader-with-ckeditor
     protected void fileSelected(String selFile)
     {
-        LOG.warn("file selected: "+selFile);
+        log.warn("file selected: "+selFile);
         JavaScript.getCurrent().execute("window.opener.CKEDITOR.tools.callFunction("+_currentAction.getEditorCallback()+",'"+StringEscapeUtils.escapeEcmaScript(selFile)+"');window.close()");
     }
 
@@ -876,7 +878,7 @@ public class VaadinBrowser extends UI
     {
         if (folder != null)
         {
-            _captionLabel.setValue("Content of folder: "+folder.getName());
+            captionLabel.setValue("Content of folder: "+folder.getName());
             _objectContainer= new ObjectContainer(folder, this);
             if (_showAsList)
             {
@@ -891,7 +893,7 @@ public class VaadinBrowser extends UI
                 WebBrowser browser = Page.getCurrent().getWebBrowser();
                 if (browser.isIE())
                 {
-                    LOG.debug("Simple fileupload for IE in folder: "+folder.getURL());
+                    log.debug("Simple fileupload for IE in folder: "+folder.getURL());
                     if (_uploadAreaS != null)
                     {
                         _topArea.removeComponent(_uploadAreaS);
@@ -928,27 +930,6 @@ public class VaadinBrowser extends UI
     public void updateFolder()
     {
         _objectContainer.refresh();
-    }
-
-    /**
-     * @return the _splitterPosition
-     */
-    public int getSplitterPosition() {
-        return _splitterPosition;
-    }
-
-    /**
-     * @param splitterPosition the _splitterPosition to set
-     */
-    public void setSplitterPosition(int splitterPosition) {
-        this._splitterPosition = splitterPosition;
-    }
-
-    /**
-     * @return the _currentFragment
-     */
-    public String getCurrentFragment() {
-        return _currentFragment;
     }
 
     public class DetailColumnGenerator implements Table.ColumnGenerator, FlowLayout.ColumnGenerator
@@ -1001,7 +982,7 @@ public class VaadinBrowser extends UI
                                     if (dialog.isConfirmed())
                                     {
                                         // Confirmed to continue
-                                        LOG.info("Delete file <"+obj.getName()+">");
+                                        log.info("Delete file <"+obj.getName()+">");
                                         if (obj.delete())
                                         {
                                             // Also remove from detail view
@@ -1068,6 +1049,7 @@ public class VaadinBrowser extends UI
 
     public class FolderColumnGenerator implements ColumnGenerator
     {
+        @Serial
         private static final long serialVersionUID = 1L;
         @Override
         public Component generateCell(Table source, Object itemId, Object columnId)
@@ -1109,16 +1091,16 @@ public class VaadinBrowser extends UI
 
             Context envCtx = (Context) initCtx.lookup(JNDI_INITIAL_CONTEXT);
             retVal= (String) envCtx.lookup(key);
-            if (LOG.isDebugEnabled())
+            if (log.isDebugEnabled())
             {
-                LOG.debug("Key <"+key+"> found, so use it :<"+retVal+">");
+                log.debug("Key <"+key+"> found, so use it :<"+retVal+">");
             }
         }
         catch (Exception ex)
         {
-            if (LOG.isDebugEnabled())
+            if (log.isDebugEnabled())
             {
-                LOG.debug("Key <"+key+"> not found, so use default :<"+defaultValue+">");
+                log.debug("Key <"+key+"> not found, so use default :<"+defaultValue+">");
             }
             retVal= defaultValue;
         }

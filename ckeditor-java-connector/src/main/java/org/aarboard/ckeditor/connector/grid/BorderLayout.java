@@ -7,6 +7,8 @@ package org.aarboard.ckeditor.connector.grid;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.GridLayout;
+
+import java.io.Serial;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -22,6 +24,7 @@ import java.util.Map;
  */
 public class BorderLayout extends CustomComponent
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public enum Constraint
@@ -30,7 +33,7 @@ public class BorderLayout extends CustomComponent
     }
 
     private final GridLayout grid = new GridLayout(3, 3);
-    private final Map<Constraint, Component> _components = new EnumMap<>(Constraint.class);
+    private final Map<Constraint, Component> componentMap = new EnumMap<>(Constraint.class);
 
     public BorderLayout()
     {
@@ -42,12 +45,12 @@ public class BorderLayout extends CustomComponent
 
     public void addComponent(Component c, Constraint constraint)
     {
-        Component existing = _components.get(constraint);
+        Component existing = componentMap.get(constraint);
         if (existing != null)
         {
             grid.removeComponent(existing);
         }
-        _components.put(constraint, c);
+        componentMap.put(constraint, c);
         switch (constraint)
         {
             case NORTH:  grid.addComponent(c, 0, 0, 2, 0); break;
@@ -61,6 +64,6 @@ public class BorderLayout extends CustomComponent
     public void removeComponent(Component c)
     {
         grid.removeComponent(c);
-        _components.values().remove(c);
+        componentMap.values().remove(c);
     }
 }
