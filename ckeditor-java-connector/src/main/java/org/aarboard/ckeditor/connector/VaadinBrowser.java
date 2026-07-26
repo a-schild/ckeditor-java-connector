@@ -286,6 +286,8 @@ public class VaadinBrowser extends UI
             String pageFragment= Page.getCurrent().getUriFragment();
             if (pageFragment != null && !pageFragment.isEmpty())
             {
+                // Remember it, providers (IToolbar) read it back via getCurrentFragment()
+                currentFragment = pageFragment;
                 internalFragmentChanged(getCKEditorAction(pageFragment));
             }
         }
