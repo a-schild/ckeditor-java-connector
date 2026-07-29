@@ -168,7 +168,6 @@
 
 package org.aarboard.ckeditor.connector;
 
-import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.v7.data.Item;
 import com.vaadin.v7.data.util.IndexedContainer;
@@ -202,7 +201,10 @@ public class ObjectContainer extends IndexedContainer
         this.folder = folder;
         application = app;
         
-        addContainerProperty(OBJECT_PROPERTY_NAME, Label.class, null);
+        // The stored value is the object name. Vaadin 6 accepted a String here and
+        // silently ran it through the Label(String) constructor; the v7 compatibility
+        // container rejects it, so declare the type the values actually have.
+        addContainerProperty(OBJECT_PROPERTY_NAME, String.class, null);
 
         refresh();
     }
