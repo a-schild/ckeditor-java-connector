@@ -168,13 +168,17 @@
 
 package org.aarboard.ckeditor.connector;
 
-import com.vaadin.data.Container;
-import com.vaadin.data.Item;
-import com.vaadin.data.Property;
-import com.vaadin.ui.Label;
+import com.vaadin.v7.data.Container;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.data.Property;
+import com.vaadin.v7.data.util.ObjectProperty;
+
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import lombok.Getter;
 import org.aarboard.ckeditor.connector.providers.IFolder;
 import org.aarboard.ckeditor.connector.providers.IProvider;
 
@@ -185,29 +189,31 @@ import org.aarboard.ckeditor.connector.providers.IProvider;
 public class FolderContainer implements Container, Container.Hierarchical,
         Container.ItemSetChangeNotifier
 {
+    @Serial
     private static final long serialVersionUID = 2L;
-    private final IProvider _folderProvider;
-    protected String    _type;
-    protected IFolder   _rootFolder;
+    @Getter
+    private final IProvider folderProvider;
+    protected String type;
+    protected IFolder rootFolder;
 
-    protected ArrayList<IFolder>    _folders= new ArrayList<>();
-    protected boolean   _foldersLoaded= false;
-    protected ArrayList<ItemSetChangeListener>  _changeListeners= new ArrayList<>();
+    protected ArrayList<IFolder> folders = new ArrayList<>();
+    protected boolean foldersLoaded = false;
+    protected ArrayList<ItemSetChangeListener> changeListeners = new ArrayList<>();
     
-    protected boolean   _isFileBrowser= true;
+    protected boolean isFileBrowser = true;
 
     public FolderContainer(IProvider folderProvider, String type, boolean isFileBrowser)
     {
-        _folderProvider= folderProvider;
-        _type= type;
-        _rootFolder= _folderProvider.getRootFolder(type, isFileBrowser);
-        _isFileBrowser= isFileBrowser;
+        this.folderProvider = folderProvider;
+        this.type = type;
+        rootFolder = this.folderProvider.getRootFolder(type, isFileBrowser);
+        this.isFileBrowser = isFileBrowser;
     }
 
     @Override
     public Item getItem(Object itemId)
     {
-        return _rootFolder;
+        return rootFolder;
     }
 
     @Override
@@ -221,19 +227,18 @@ public class FolderContainer implements Container, Container.Hierarchical,
     @Override
     public Collection<?> getItemIds()
     {
-        if (!_foldersLoaded)
+        if (!foldersLoaded)
         {
             loadFolders();
         }
-        return _folders;
+        return folders;
     }
 
     @Override
     public Property getContainerProperty(Object itemId, Object propertyId)
     {
         IFolder item= (IFolder) itemId;
-        Label retVal= new Label(item.getName());
-        return retVal;
+        return new ObjectProperty<>(item.getName());
     }
 
     @Override
@@ -245,21 +250,21 @@ public class FolderContainer implements Container, Container.Hierarchical,
     @Override
     public int size()
     {
-        if (!_foldersLoaded)
+        if (!foldersLoaded)
         {
             loadFolders();
         }
-        return _folders.size();
+        return folders.size();
     }
 
     @Override
     public boolean containsId(Object itemId)
     {
-        if (!_foldersLoaded)
+        if (!foldersLoaded)
         {
             loadFolders();
         }
-        return _folders.contains((IFolder)itemId);
+        return folders.contains((IFolder)itemId);
     }
 
     @Override
@@ -316,7 +321,7 @@ public class FolderContainer implements Container, Container.Hierarchical,
     public Collection<?> rootItemIds()
     {
         ArrayList<IFolder> rootCollection= new ArrayList<>();
-        rootCollection.add(_rootFolder);
+        rootCollection.add(rootFolder);
         return rootCollection;
     }
 
@@ -343,7 +348,7 @@ public class FolderContainer implements Container, Container.Hierarchical,
     public boolean isRoot(Object itemId)
     {
         IFolder item= (IFolder) itemId;
-        return item == _rootFolder;
+        return item == rootFolder;
     }
 
     @Override
@@ -355,9 +360,9 @@ public class FolderContainer implements Container, Container.Hierarchical,
 
     protected void loadFolders()
     {
-        _foldersLoaded= true;
-        _folders.add(_rootFolder);
-        addChildren(_rootFolder);
+        foldersLoaded = true;
+        folders.add(rootFolder);
+        addChildren(rootFolder);
     }
 
     /**
@@ -368,7 +373,7 @@ public class FolderContainer implements Container, Container.Hierarchical,
     protected void addChildren(IFolder parentFolder)
     {
         List<IFolder> children= parentFolder.getChildrenFolders();
-        _folders.addAll(children);
+        folders.addAll(children);
         for (IFolder child : children)
         {
             addChildren(child);
@@ -376,36 +381,43 @@ public class FolderContainer implements Container, Container.Hierarchical,
     }
 
     @Override
-    public void addListener(ItemSetChangeListener listener)
+    public void addItemSetChangeListener(ItemSetChangeListener listener)
     {
-        _changeListeners.add(listener);
+        changeListeners.add(listener);
     }
 
     @Override
+    @Deprecated
+    public void addListener(ItemSetChangeListener listener)
+    {
+        addItemSetChangeListener(listener);
+    }
+
+    @Override
+    public void removeItemSetChangeListener(ItemSetChangeListener listener)
+    {
+        changeListeners.remove(listener);
+    }
+
+    @Override
+    @Deprecated
     public void removeListener(ItemSetChangeListener listener)
     {
-        _changeListeners.remove(listener);
+        removeItemSetChangeListener(listener);
     }
 
     protected void fireItemSetChanged()
     {
         ItemSetChangeEvent ev= new ObjectItemSetChangeEvent(this);
-        for (ItemSetChangeListener listener: _changeListeners)
+        for (ItemSetChangeListener listener: changeListeners)
         {
             listener.containerItemSetChange(ev);
         }
     }
 
-    /**
-     * @return the _folderProvider
-     */
-    public IProvider getFolderProvider() 
-    {
-        return _folderProvider;
-    }
-
     protected class ObjectItemSetChangeEvent implements ItemSetChangeEvent
     {
+        @Serial
         private static final long serialVersionUID = 1L;
         protected Container _container;
 
@@ -426,8 +438,8 @@ public class FolderContainer implements Container, Container.Hierarchical,
      */
     public void refresh()
     {
-        _rootFolder= getFolderProvider().getRootFolder(_type, _isFileBrowser);
-        _folders= new ArrayList<>();
+        rootFolder = getFolderProvider().getRootFolder(type, isFileBrowser);
+        folders = new ArrayList<>();
         loadFolders();
         fireItemSetChanged();
     }

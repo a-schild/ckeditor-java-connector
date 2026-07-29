@@ -167,10 +167,11 @@
  */
 package org.aarboard.ckeditor.connector.providers.filesystem;
 
-import com.vaadin.terminal.ExternalResource;
-import com.vaadin.terminal.Resource;
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ExternalResource;
+import com.vaadin.server.Resource;
+import com.vaadin.server.ThemeResource;
 import java.io.File;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.HashMap;
 import org.aarboard.ckeditor.connector.providers.IFolder;
@@ -184,13 +185,14 @@ import org.aarboard.ckeditor.connector.providers.IThumbnailProvider;
  */
 public class FileObject implements IObject, IIconProvider, IThumbnailProvider, Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     protected IFolder _parent;
     protected File _mySelf;
     protected boolean _isFileBrowser;
-    protected String _images[] = {"jpg", "jpeg", "bmp", "tif", "tiff", "gif", "png" };
-    protected String _icons[] = {"aac",
+    protected String[] _images = {"jpg", "jpeg", "bmp", "tif", "tiff", "gif", "png" };
+    protected String[] _icons = {"aac",
         "ai",
         "aiff",
         "avi",
@@ -247,14 +249,14 @@ public class FileObject implements IObject, IIconProvider, IThumbnailProvider, S
         "xml",
         "yml",
         "zip"};
-    private final HashMap<String, String> _iconSubstitutes= new HashMap<>();
+    private final HashMap<String, String> iconSubstitutes = new HashMap<>();
 
     public FileObject(File mySelf, IFolder parent, boolean isFileBrowser) {
         _parent = parent;
         _mySelf = mySelf;
         _isFileBrowser = isFileBrowser;
-        _iconSubstitutes.put("jpeg", "jpg");
-        _iconSubstitutes.put("tiff", "tif");
+        iconSubstitutes.put("jpeg", "jpg");
+        iconSubstitutes.put("tiff", "tif");
     }
 
     @Override
@@ -340,7 +342,7 @@ public class FileObject implements IObject, IIconProvider, IThumbnailProvider, S
                 }
             }
             // Not found, search in alias table
-            ext= _iconSubstitutes.get(ext);
+            ext= iconSubstitutes.get(ext);
             if (ext == null)
             {
                 // Fall back to blank default
@@ -378,8 +380,7 @@ public class FileObject implements IObject, IIconProvider, IThumbnailProvider, S
             }
             if (imgType != null)
             {
-                ExternalResource rsc= new ExternalResource(getURL());
-                return rsc;
+                return new ExternalResource(getURL());
             }
             else
             {
@@ -407,8 +408,7 @@ public class FileObject implements IObject, IIconProvider, IThumbnailProvider, S
                             iconSize= "512px";
                         }
                     }
-                    ThemeResource thRsc= new ThemeResource("../../icons/"+iconSize+"/"+lIcon+".png");
-                    return thRsc;
+                    return new ThemeResource("../../icons/"+iconSize+"/"+lIcon+".png");
                 }
                 else
                 {

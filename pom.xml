@@ -4,21 +4,40 @@
   
     <groupId>org.aarboard</groupId>
     <artifactId>ckeditor-java-connector-project</artifactId>
-    <version>1.0.23</version>
+    <version>2.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>PARENT - ${project.artifactId}</name>
-  
+
+    <!--
+        2.x = Vaadin 8 line. The 1.0.x releases are the Vaadin 6.8.18 line
+        (see the archived master branch / Maven Central). This branch ports the
+        connector to Vaadin 8.14.0 / JDK 17 / javax.servlet so it can be used by
+        the aarcat2-web 8.1.x / Tomcat 9 chain. Published to GitHub Packages.
+    -->
     <modules>
         <module>ckeditor-java</module>
         <module>ckeditor-java-connector</module>
     </modules>
     <properties>
-        <revision>1.0.23</revision>
+        <revision>2.0.0-SNAPSHOT</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-jar-plugin.version>3.1.2</maven-jar-plugin.version>
         <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
     </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/Aarboard-AG/aarboard-commons</url>
+        </repository>
+        <snapshotRepository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/Aarboard-AG/aarboard-commons</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>

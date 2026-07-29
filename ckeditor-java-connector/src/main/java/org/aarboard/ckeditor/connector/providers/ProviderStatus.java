@@ -175,26 +175,26 @@ package org.aarboard.ckeditor.connector.providers;
 public class ProviderStatus
 {
 
-    public enum Status { OPERATION_OK, FILE_RENAMED};
+    public enum Status { OPERATION_OK, FILE_RENAMED}
 
-    private final Status  _status;
-    private final String  _message;
-    private final IObject _uploadedObject;
+    private final Status status;
+    private final String message;
+    private final IObject uploadedObject;
 
     public ProviderStatus(Status status, String message, IObject uploadedObject)
     {
-        _status = status;
-        _message = message;
-        _uploadedObject= uploadedObject;
+        this.status = status;
+        this.message = message;
+        this.uploadedObject = uploadedObject;
     }
 
     public String getMessage() {
-        return _message;
+        return message;
     }
 
     public Status getStatus()
     {
-        return _status;
+        return status;
     }
 
     
@@ -203,7 +203,7 @@ public class ProviderStatus
      */
     public IObject getUploadedObject()
     {
-        return _uploadedObject;
+        return uploadedObject;
     }
 
 }

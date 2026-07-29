@@ -170,6 +170,7 @@ package org.aarboard.ckeditor.connector.upload;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -178,6 +179,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import lombok.extern.slf4j.Slf4j;
 import org.aarboard.ckeditor.connector.CKEditorAction;
 import org.aarboard.ckeditor.connector.providers.IFolder;
 import org.aarboard.ckeditor.connector.providers.IObject;
@@ -189,7 +192,7 @@ import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -197,9 +200,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author a.schild
  */
+@Slf4j
 public class DirectUploadServlet extends HttpServlet
 {
-    private final static Logger LOG = LoggerFactory.getLogger(DirectUploadServlet.class);
+    @Serial
     private static final long serialVersionUID = 1L;
    
     /** 
@@ -217,7 +221,7 @@ public class DirectUploadServlet extends HttpServlet
         if (cAction.getRequestedAction() == CKEditorAction.CK_ACTIONS.UPLOADER)
         {
             // Direct uploader
-            LOG.debug("Handle direct upload");
+            log.debug("Handle direct upload");
             boolean answerAsJSON= cAction.isJSONAnswer();
             String uploadType= cAction.getType();
             IProvider _folder= new FileSystemProvider();
@@ -245,7 +249,7 @@ public class DirectUploadServlet extends HttpServlet
                         String tmpName= "upload-" + UUID.randomUUID()+"-tmp";
                         File tmpFile= new File(tmpdir, tmpName);
                         fItem.write(tmpFile);
-                        LOG.debug("Upload found fieldName {} name {} contentType {} size {}", 
+                        log.debug("Upload found fieldName {} name {} contentType {} size {}",
                                 fItem.getFieldName(), fItem.getName(),
                                 fItem.getContentType(), fItem.getSize());
                         uploadStatus.add(rootFolder.handleUpload(tmpFile, fItem.getName(), fItem.getContentType(), fItem.getSize()));
@@ -260,7 +264,7 @@ public class DirectUploadServlet extends HttpServlet
                     String message= null;
                     if (lastUpload.getStatus() == ProviderStatus.Status.FILE_RENAMED)
                     {
-                        message= "Uploaded file has been renamed to "+StringEscapeUtils.escapeJavaScript(uFile.getName());
+                        message= "Uploaded file has been renamed to "+StringEscapeUtils.escapeEcmaScript(uFile.getName());
                     }
 
                     sendStatus(out, cAction, uFile, message, lastUpload, answerAsJSON);
@@ -272,16 +276,16 @@ public class DirectUploadServlet extends HttpServlet
             }
             catch(FileUploadException ex)
             {
-                LOG.error("Error in file upload", ex);
+                log.error("Error in file upload", ex);
             }
             catch(Exception ex)
             {
-                LOG.error("Error in upload", ex);
+                log.error("Error in upload", ex);
             }
         }
         else
         {
-            LOG.warn("Invalid request sent "+cAction.getUriFragment());
+            log.warn("Invalid request sent "+cAction.getUriFragment());
             response.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
     } 
@@ -331,13 +335,13 @@ public class DirectUploadServlet extends HttpServlet
         {
             out.println("{");
             out.println("\"uploaded\": 1,");
-            out.println("\"fileName\": \""+StringEscapeUtils.escapeJavaScript(uploadedFile.getName())+"\",");
-            out.println("\"url\": \""+StringEscapeUtils.escapeJavaScript(uploadedFile.getURL())+"\"");
+            out.println("\"fileName\": \""+StringEscapeUtils.escapeEcmaScript(uploadedFile.getName())+"\",");
+            out.println("\"url\": \""+StringEscapeUtils.escapeEcmaScript(uploadedFile.getURL())+"\"");
             if (message != null)
             {
                 out.println("\"error\": {");
                 out.println("\"message\": \"");
-                out.println(StringEscapeUtils.escapeJavaScript(message));
+                out.println(StringEscapeUtils.escapeEcmaScript(message));
                 out.println("\"}");
             }
             out.println("}");
@@ -348,8 +352,8 @@ public class DirectUploadServlet extends HttpServlet
             out.println("<script type=\"text/javascript\">");
             out.println("//<![CDATA[");
             String call= "window.parent.CKEDITOR.tools.callFunction("+cAction.getEditorCallback()+",'"+
-                    StringEscapeUtils.escapeJavaScript(uploadedFile.getURL())+"'"+
-                    (message != null ? ",'"+StringEscapeUtils.escapeJavaScript(message)+"'" : "")+");";
+                    StringEscapeUtils.escapeEcmaScript(uploadedFile.getURL())+"'"+
+                    (message != null ? ",'"+StringEscapeUtils.escapeEcmaScript(message)+"'" : "")+");";
             out.println(call);
             out.println("//]]>");
             out.println("</script>");

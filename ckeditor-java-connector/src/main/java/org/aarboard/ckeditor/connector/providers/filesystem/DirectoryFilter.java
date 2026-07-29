@@ -177,18 +177,18 @@ import java.io.FilenameFilter;
  */
 public class DirectoryFilter implements FilenameFilter
 {
-    private final boolean _returnFolders;
+    private final boolean returnFolders;
 
     public DirectoryFilter(boolean returnFolders)
     {
-        _returnFolders= returnFolders;
+        this.returnFolders = returnFolders;
     }
 
     @Override
     public boolean accept(File dir, String name)
     {
         File newFile= new File(dir, name);
-        if (_returnFolders)
+        if (returnFolders)
         {
             return newFile.isDirectory();
         }

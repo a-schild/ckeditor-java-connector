@@ -183,13 +183,13 @@ public class CKEditor
     protected String    _fieldID;
     private int     _rows= -1;
     private int     _cols = -1;
-    private final HashMap<String, String> _config= new HashMap<>();
-    private final HashMap<String, Boolean> _configBoolean= new HashMap<>();
-    private final HashMap<String, String> _toolbarDefinition= new HashMap<>();
-    private final ArrayList<String> _templateFiles= new ArrayList<>();
-    private String  _style;
-    private String  _stylesSet;
-    private String  _stylesSetURL;
+    private final HashMap<String, String> config = new HashMap<>();
+    private final HashMap<String, Boolean> configBoolean = new HashMap<>();
+    private final HashMap<String, String> toolbarDefinition = new HashMap<>();
+    private final ArrayList<String> templateFiles = new ArrayList<>();
+    private String style;
+    private String stylesSet;
+    private String stylesSetURL;
 
     protected String    _value;
 
@@ -224,10 +224,10 @@ public class CKEditor
             sB.append(_cols);
             sB.append("\" ");
         }
-        if (_style != null)
+        if (style != null)
         {
             sB.append("style=\"");
-            sB.append(_style);
+            sB.append(style);
             sB.append("\" ");
         }
         sB.append(">");
@@ -244,9 +244,9 @@ public class CKEditor
         sB.append("',\n");
         sB.append(" {\n");
         boolean firstKey= true;
-        for (String configKey : _config.keySet())
+        for (String configKey : config.keySet())
         {
-            String value= _config.get(configKey);
+            String value= config.get(configKey);
             if (!firstKey)
             {
                 sB.append(",\n");
@@ -256,14 +256,14 @@ public class CKEditor
                 firstKey= false;
             }
             sB.append(" ");
-            sB.append(StringEscapeUtils.escapeEcmaScript​(configKey));
+            sB.append(StringEscapeUtils.escapeEcmaScript(configKey));
             sB.append(" : '");
-            sB.append(StringEscapeUtils.escapeEcmaScript​(value));
+            sB.append(StringEscapeUtils.escapeEcmaScript(value));
             sB.append("'");
         }
-        for (String configKey : _configBoolean.keySet())
+        for (String configKey : configBoolean.keySet())
         {
-            Boolean value= _configBoolean.get(configKey);
+            Boolean value= configBoolean.get(configKey);
             if (!firstKey)
             {
                 sB.append(",\n");
@@ -273,13 +273,13 @@ public class CKEditor
                 firstKey= false;
             }
             sB.append(" ");
-            sB.append(StringEscapeUtils.escapeEcmaScript​(configKey));
+            sB.append(StringEscapeUtils.escapeEcmaScript(configKey));
             sB.append(" : ");
             sB.append(value.toString());
         }
-        for (String toolbarName : _toolbarDefinition.keySet())
+        for (String toolbarName : toolbarDefinition.keySet())
         {
-            String value= _toolbarDefinition.get(toolbarName);
+            String value= toolbarDefinition.get(toolbarName);
             if (!firstKey)
             {
                 sB.append(",\n");
@@ -289,11 +289,11 @@ public class CKEditor
                 firstKey= false;
             }
             sB.append(" ");
-            sB.append(StringEscapeUtils.escapeEcmaScript​("toolbar_"+toolbarName));
+            sB.append(StringEscapeUtils.escapeEcmaScript("toolbar_"+toolbarName));
             sB.append(" : ");
             sB.append(value);  // Don't escape this one
         }
-        if (!_templateFiles.isEmpty())
+        if (!templateFiles.isEmpty())
         {
             if (!firstKey)
             {
@@ -305,7 +305,7 @@ public class CKEditor
             }
             boolean isFirstTemplate= true;
             sB.append("templates_files : [");
-            for (String template : _templateFiles)
+            for (String template : templateFiles)
             {
                 if (isFirstTemplate)
                 {
@@ -316,12 +316,12 @@ public class CKEditor
                     sB.append(",");
                 }
                 sB.append(" '");
-                sB.append(StringEscapeUtils.escapeEcmaScript​(template));
+                sB.append(StringEscapeUtils.escapeEcmaScript(template));
                 sB.append("' ");
             }
             sB.append("]");
         }
-        if (_stylesSet != null && !_stylesSet.isEmpty())
+        if (stylesSet != null && !stylesSet.isEmpty())
         {
             if (!firstKey)
             {
@@ -332,9 +332,9 @@ public class CKEditor
                 firstKey= false;
             }
             sB.append("stylesSet: ");
-            sB.append(_stylesSet);
+            sB.append(stylesSet);
         }
-        if (_stylesSetURL != null && !_stylesSetURL.isEmpty())
+        if (stylesSetURL != null && !stylesSetURL.isEmpty())
         {
             if (!firstKey)
             {
@@ -345,7 +345,7 @@ public class CKEditor
                 // firstKey= false;
             }
             sB.append("stylesSet: ");
-            sB.append(StringEscapeUtils.escapeEcmaScript​(_stylesSetURL));
+            sB.append(StringEscapeUtils.escapeEcmaScript(stylesSetURL));
         }
 
         sB.append("});\n");
@@ -418,7 +418,7 @@ public class CKEditor
 
     public void addConfig(String key, String value)
     {
-        _config.put(key, value);
+        config.put(key, value);
     }
 
     public void setFullPage(boolean fullPage)
@@ -428,7 +428,7 @@ public class CKEditor
 
     public void addConfig(String key, boolean value)
     {
-        _configBoolean.put(key, value);
+        configBoolean.put(key, value);
     }
 
     public void setLanguage(String language)
@@ -440,7 +440,7 @@ public class CKEditor
      * @return the _style
      */
     public String getStyle() {
-        return _style;
+        return style;
     }
 
     /**
@@ -450,7 +450,7 @@ public class CKEditor
      */
     public void setStyle(String style)
     {
-        _style = style;
+        this.style = style;
     }
 
     /**
@@ -477,19 +477,19 @@ public class CKEditor
      */
     public void addToolbar(String toolbarName, String toolbar)
     {
-        _toolbarDefinition.put(toolbarName, toolbar);
+        toolbarDefinition.put(toolbarName, toolbar);
     }
 
     public void addTemplateFile(String templateFile)
     {
-        _templateFiles.add(templateFile);
+        templateFiles.add(templateFile);
     }
 
     /**
      * @return the _stylesSet
      */
     public String getStylesSet() {
-        return _stylesSet;
+        return stylesSet;
     }
 
     /**
@@ -503,14 +503,14 @@ public class CKEditor
      */
     public void setStylesSet(String stylesSet) 
     {
-        _stylesSet = stylesSet;
+        this.stylesSet = stylesSet;
     }
 
     /**
      * @return the _stylesSetURL
      */
     public String getStylesSetURL() {
-        return _stylesSetURL;
+        return stylesSetURL;
     }
 
     /**
@@ -518,7 +518,7 @@ public class CKEditor
      */
     public void setStylesSetURL(String stylesSetURL) 
     {
-        _stylesSetURL = stylesSetURL;
+        this.stylesSetURL = stylesSetURL;
     }
 
 }

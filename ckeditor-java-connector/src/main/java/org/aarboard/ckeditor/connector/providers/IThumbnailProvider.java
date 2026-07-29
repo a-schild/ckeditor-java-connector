@@ -4,7 +4,7 @@
  */
 package org.aarboard.ckeditor.connector.providers;
 
-import com.vaadin.terminal.Resource;
+import com.vaadin.server.Resource;
 
 /**
  *

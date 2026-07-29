@@ -168,36 +168,36 @@
 
 package org.aarboard.ckeditor.connector;
 
-import com.vaadin.Application;
-import com.vaadin.data.Container;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.Action;
 import com.vaadin.event.Action.Handler;
-import com.vaadin.event.ItemClickEvent;
-import com.vaadin.event.ItemClickEvent.ItemClickListener;
-import com.vaadin.terminal.Resource;
-import com.vaadin.terminal.ThemeResource;
-import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
-import com.vaadin.terminal.gwt.server.WebBrowser;
+import com.vaadin.server.Page;
+import com.vaadin.server.Page.UriFragmentChangedEvent;
+import com.vaadin.server.Page.UriFragmentChangedListener;
+import com.vaadin.server.Resource;
+import com.vaadin.server.ThemeResource;
+import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinServletRequest;
+import com.vaadin.server.WebBrowser;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.JavaScript;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.Table.ColumnGenerator;
-import com.vaadin.ui.TreeTable;
-import com.vaadin.ui.UriFragmentUtility;
-import com.vaadin.ui.UriFragmentUtility.FragmentChangedEvent;
-import com.vaadin.ui.UriFragmentUtility.FragmentChangedListener;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.Notification;
+import com.vaadin.v7.data.Container;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.util.IndexedContainer;
+import com.vaadin.v7.event.ItemClickEvent;
+import com.vaadin.v7.ui.Table;
+import com.vaadin.v7.ui.Table.ColumnGenerator;
+import com.vaadin.v7.ui.TreeTable;
 import java.io.File;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -205,8 +205,12 @@ import java.util.Iterator;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.aarboard.ckeditor.connector.CKEditorAction.CK_ACTIONS;
+import org.aarboard.ckeditor.connector.grid.BorderLayout;
 import org.aarboard.ckeditor.connector.grid.FlowLayout;
 import org.aarboard.ckeditor.connector.providers.IFolder;
 import org.aarboard.ckeditor.connector.providers.IIconProvider;
@@ -216,72 +220,85 @@ import org.aarboard.ckeditor.connector.providers.IToolbar;
 import org.aarboard.ckeditor.connector.providers.filesystem.FileSystemProvider;
 import org.aarboard.ckeditor.connector.upload.FileUploader;
 import org.aarboard.ckeditor.connector.upload.SimpleFileUploader;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.vaadin.addon.borderlayout.BorderLayout;
+import org.apache.commons.text.StringEscapeUtils;
 import org.vaadin.dialogs.ConfirmDialog;
-import org.vaadin.notifique.Notifique;
-import org.vaadin.notifique.Notifique.Message;
 
 /**
  *
  * @author a.schild
  */
-public class VaadinBrowser extends Application 
-     implements FragmentChangedListener, HttpServletRequestListener
+@Slf4j
+public class VaadinBrowser extends UI
+     implements UriFragmentChangedListener
 {
-    private final static Logger LOG = LoggerFactory.getLogger(VaadinBrowser.class);
 
     public static final String  JNDI_INITIAL_CONTEXT= "java:/comp/env"; // Root jndi context to use
 
     private static final Resource FOLDER = new ThemeResource(
             "../runo/icons/64/folder.png");
+    @Serial
     private static final long serialVersionUID = 1L;
     
     private static final String COOKIE_NAME= "VaadinBrowser.config.";
 
-    protected VerticalLayout    _leftPart;  /// Folder browser lives in this part
+    protected VerticalLayout    _leftPart;  // Folder browser lives in this part
     protected TreeTable         _folderBrowser;
     protected FolderContainer   _folderContainer;
     protected BorderLayout      _contentArea;
     protected VerticalLayout    _topArea= new VerticalLayout();
     protected ObjectContainer   _objectContainer;
-    protected Window            _mainWindow;
     protected CKEditorAction    _currentAction;
     protected Table             _contentTable;
     protected FlowLayout        _contentFlow;
     protected Panel             _flowPanel;
     protected FileUploader      _uploadAreaM;
     protected SimpleFileUploader      _uploadAreaS;
-    protected Notifique         _notifications;
     protected HorizontalSplitPanel _splitPanel;
     protected Component         _folderToolbar= null;
     protected Component         _detailToolbar= null;
     
     protected boolean   _isFileBrowser= true;
-    private int         _splitterPosition= 200;
+    @Setter
+    @Getter
+    private int splitterPosition = 200;
     protected boolean   _showAsList= true;
-    
-    private String    _currentFragment;
-    private Label       _captionLabel;
-    //private BrowserCookies _cookies;
 
-    
+    @Getter
+    private String currentFragment;
+    private Label captionLabel;
+
     @Override
-    public void init()
+    protected void init(VaadinRequest request)
     {
         initLayout();
+        // CKEditor may pass the requested action either as the URI fragment
+        // (#FILEBROWSER/type/Images) or as a "fr" request parameter. Handle both.
+        String initialFragment= request.getParameter("fr");
+        if (initialFragment != null)
+        {
+            log.debug("Request fragment: "+initialFragment);
+            HttpServletRequest httpRequest= (request instanceof VaadinServletRequest)
+                    ? (VaadinServletRequest) request : null;
+            internalFragmentChanged(initialFragment, httpRequest);
+        }
+        else
+        {
+            String pageFragment= Page.getCurrent().getUriFragment();
+            if (pageFragment != null && !pageFragment.isEmpty())
+            {
+                // Remember it, providers (IToolbar) read it back via getCurrentFragment()
+                currentFragment = pageFragment;
+                internalFragmentChanged(getCKEditorAction(pageFragment));
+            }
+        }
     }
 
     private void initLayout()
     {
         _splitPanel = new HorizontalSplitPanel();
-        _mainWindow= new Window("Vaadin browser", _splitPanel);
-        setMainWindow(_mainWindow);
-        setTheme("vaadinbrowser");
+        setContent(_splitPanel);
         // BrowserCookies widget (by default reads the cookie values)
-        
+
         _leftPart = new VerticalLayout();
         _leftPart.setSizeFull();
 
@@ -322,7 +339,7 @@ public class VaadinBrowser extends Application
         _folderBrowser= new TreeTable();
         _folderBrowser.setCaption("Folders");
 
-        _folderBrowser.addListener((ItemClickListener) (ItemClickEvent event) -> {
+        _folderBrowser.addItemClickListener((ItemClickEvent event) -> {
             Object propertyId = event.getPropertyId();
             Object itemId = event.getItemId();
             Object value = _folderBrowser.getValue();
@@ -386,7 +403,7 @@ public class VaadinBrowser extends Application
                                          showErrorNotification("Creation of folder failed");
                                      }
                          });
-                         _mainWindow.addWindow(dialog);
+                         addWindow(dialog);
                     }
                 } 
                 else if (action == RENAME)
@@ -407,7 +424,7 @@ public class VaadinBrowser extends Application
                                         _folderContainer.refresh();
                                     }
                         });
-                         _mainWindow.addWindow(dialog);
+                         addWindow(dialog);
                     }
                 } 
                 else if (action == DELETE)
@@ -415,14 +432,14 @@ public class VaadinBrowser extends Application
                     final IFolder item= (IFolder) target;
                     if (item.isDeleteAllowed())
                     {
-                        ConfirmDialog.show(_mainWindow,
+                        ConfirmDialog.show(VaadinBrowser.this,
                                 "Please confirm:",
                                 "Do you wish to delete <"+item.getName()+"> ?",
                                 "Yes", "No", (ConfirmDialog dialog) -> {
                                     if (dialog.isConfirmed())
                                     {
                                         // Confirmed to continue
-                                        LOG.info("Delete folder <"+item.getName()+">");
+                                        log.info("Delete folder <"+item.getName()+">");
                                         if (item.handleFolderDelete())
                                         {
                                             // Also remove from detail view
@@ -430,7 +447,7 @@ public class VaadinBrowser extends Application
                                         }
                                         else
                                         {
-                                            _mainWindow.showNotification("Delete failed", "Failed to delete <"+item.getName()+">");
+                                            Notification.show("Delete failed", "Failed to delete <"+item.getName()+">", Notification.Type.WARNING_MESSAGE);
                                         }
                                     }
                                     else
@@ -541,17 +558,15 @@ public class VaadinBrowser extends Application
         _contentArea= new BorderLayout();
         _contentArea.setSizeFull();
         _splitPanel.addComponent(_contentArea);
-        _splitPanel.setSplitPosition(getSplitterPosition(), HorizontalSplitPanel.UNITS_PIXELS);
+        _splitPanel.setSplitPosition(getSplitterPosition(), Unit.PIXELS);
         _splitPanel.setLocked(false); // Splitter can be resized
 
         buildContentPart();
     
-        final UriFragmentUtility uriFragment= new UriFragmentUtility();
-        uriFragment.addListener(this);
-        _leftPart.addComponent(uriFragment);
-        LOG.warn("Initial fragment" + uriFragment.getFragment());
+        Page.getCurrent().addUriFragmentChangedListener(this);
+        log.warn("Initial fragment {}", Page.getCurrent().getUriFragment());
         
-        _folderBrowser.addListener((ValueChangeEvent event) -> {
+        _folderBrowser.addValueChangeListener((ValueChangeEvent event) -> {
             Object selected= event.getProperty().getValue();
             if (selected instanceof File) 
             {
@@ -569,26 +584,12 @@ public class VaadinBrowser extends Application
                 }
             }
         });
-
-        // Notification area. Full width.
-        _notifications = new Notifique(false);
-        _notifications.setWidth("100%");
-
-        // Hide messages when clicked anywhere (not only with the close
-        // button)
-        _notifications.setClickListener((Message message) -> {
-            message.hide();
-        });
-        // Display as overlay in top of the main window
-        // CustomOverlay ol = new CustomOverlay(_notifications, getMainWindow());
-        _leftPart.addComponent(_notifications);
     }
 
     @Override
-    public void fragmentChanged(FragmentChangedEvent source)
+    public void uriFragmentChanged(UriFragmentChangedEvent event)
     {
-        UriFragmentUtility fu= source.getUriFragmentUtility();
-        _currentFragment= fu.getFragment();
+        currentFragment = event.getUriFragment();
         CKEditorAction currentAction= getCKEditorAction(getCurrentFragment());
 
         internalFragmentChanged(currentAction);
@@ -596,7 +597,7 @@ public class VaadinBrowser extends Application
     
     protected void internalFragmentChanged(String newFragment, HttpServletRequest request)
     {
-        _currentFragment= newFragment;
+        currentFragment = newFragment;
         CKEditorAction currentAction= getCKEditorAction(newFragment, request);
         internalFragmentChanged(currentAction);
     }
@@ -604,15 +605,15 @@ public class VaadinBrowser extends Application
     protected void internalFragmentChanged(CKEditorAction currentAction)
     {
         _currentAction= currentAction;
-        if (LOG.isDebugEnabled())
+        if (log.isDebugEnabled())
         {
-            LOG.debug("New fragment: "+_currentFragment);
-            LOG.debug("Requested action: <"+_currentAction.getRequestedAction().name()+">");
-            LOG.debug("Requested type: <"+_currentAction.getType()+">");
-            LOG.debug("Remaining remaining part: <"+_currentAction.getRemainingPart()+">");
-            LOG.debug("Remaining Instance: <"+_currentAction.getEditorInstance()+">");
-            LOG.debug("Remaining callback FuncNum: <"+_currentAction.getEditorCallback()+">");
-            LOG.debug("Remaining langCode: <"+_currentAction.getLangCode()+">");
+            log.debug("New fragment: "+ currentFragment);
+            log.debug("Requested action: <"+_currentAction.getRequestedAction().name()+">");
+            log.debug("Requested type: <"+_currentAction.getType()+">");
+            log.debug("Remaining remaining part: <"+_currentAction.getRemainingPart()+">");
+            log.debug("Remaining Instance: <"+_currentAction.getEditorInstance()+">");
+            log.debug("Remaining callback FuncNum: <"+_currentAction.getEditorCallback()+">");
+            log.debug("Remaining langCode: <"+_currentAction.getLangCode()+">");
         }
         if (null != _currentAction.getRequestedAction())
         switch (_currentAction.getRequestedAction()) {
@@ -625,7 +626,7 @@ public class VaadinBrowser extends Application
                 browseTree(_currentAction.getType(), false);
                 break;
             default:
-                getMainWindow().showNotification("Unhandled action", _currentAction.getRequestedAction().name(), Notification.TYPE_ERROR_MESSAGE);
+                Notification.show("Unhandled action", _currentAction.getRequestedAction().name(), Notification.Type.ERROR_MESSAGE);
                 break;
         }
     }
@@ -680,34 +681,34 @@ public class VaadinBrowser extends Application
         if (showDetail)
         {
             HorizontalLayout hl= new HorizontalLayout();
-            hl.setWidth(100,HorizontalLayout.UNITS_PERCENTAGE);
-            _splitPanel.setSplitPosition(getSplitterPosition(), HorizontalSplitPanel.UNITS_PIXELS);
+            hl.setWidth(100, Unit.PERCENTAGE);
+            _splitPanel.setSplitPosition(getSplitterPosition(), Unit.PIXELS);
             Component tbDetail= (tbProvider != null ? tbProvider.getDetailScreenToolbar(this) : null);
             _topArea.removeAllComponents();
             if (tbDetail != null )
             {
                 _topArea.addComponent(tbDetail);
                 _topArea.addComponent(hl);
-                _captionLabel= new Label("Please select a folder from the left side");
-                hl.addComponent(_captionLabel);
-                _captionLabel.setWidth(100, Label.UNITS_PERCENTAGE);
-                hl.setExpandRatio(_captionLabel, 1);
+                captionLabel = new Label("Please select a folder from the left side");
+                hl.addComponent(captionLabel);
+                captionLabel.setWidth(100, Unit.PERCENTAGE);
+                hl.setExpandRatio(captionLabel, 1);
                 _contentArea.addComponent(_topArea, BorderLayout.Constraint.NORTH);
             }
             else
             {
-                _captionLabel= new Label("Please select a folder from the left side");
-                hl.addComponent(_captionLabel);
-                hl.setExpandRatio(_captionLabel, 1);
+                captionLabel = new Label("Please select a folder from the left side");
+                hl.addComponent(captionLabel);
+                hl.setExpandRatio(captionLabel, 1);
                 _topArea.addComponent(hl);
-                _captionLabel.setWidth(100, Label.UNITS_PERCENTAGE);
+                captionLabel.setWidth(100, Unit.PERCENTAGE);
                 _contentArea.addComponent(_topArea, BorderLayout.Constraint.NORTH);
             }
             Button listView= new Button();
             listView.setDescription("Show items as list");
             listView.setIcon(new ThemeResource("../../icons/list_view.gif"));
             hl.addComponent(listView);
-            listView.addListener((ClickListener) (ClickEvent event) -> {
+            listView.addClickListener((ClickEvent event) -> {
                 if (!_showAsList)
                 {
                     _showAsList= true;
@@ -719,7 +720,7 @@ public class VaadinBrowser extends Application
             galView.setDescription("Show items as gallery with preview");
             galView.setIcon(new ThemeResource("../../icons/gallery_view_on.gif"));
             hl.addComponent(galView);
-            galView.addListener((ClickListener) (ClickEvent event) -> {
+            galView.addClickListener((ClickEvent event) -> {
                 if (_showAsList)
                 {
                     //_cookies.setCookie(getCookieName()+"ShowAsList", "0", getCookieExpiration());
@@ -734,14 +735,14 @@ public class VaadinBrowser extends Application
         }
         else
         {
-            _splitPanel.setSplitPosition(100, HorizontalSplitPanel.UNITS_PERCENTAGE);
+            _splitPanel.setSplitPosition(100, Unit.PERCENTAGE);
         }
         _folderBrowser.setSelectable(showDetail);
         _folderBrowser.setMultiSelect(false);
         _folderBrowser.setImmediate(true);
         _folderBrowser.setColumnIcon(_folderBrowser.getHierarchyColumnId() /*CollapsibleFileSystemContainer.PROPERTY_NAME */,
                 new ThemeResource("../runo/icons/16/document.png"));
-        _folderBrowser.addListener((ValueChangeEvent event) -> {
+        _folderBrowser.addValueChangeListener((ValueChangeEvent event) -> {
             // Item selected
             Object obj= event.getProperty().getValue();
             if (obj != null)
@@ -751,7 +752,7 @@ public class VaadinBrowser extends Application
             }
             else
             {
-                LOG.debug("Selected : "+(obj != null ? obj.toString() : "Null"));
+                log.debug("Selected : "+(obj != null ? obj.toString() : "Null"));
             }
         });
         if (showDetail)
@@ -779,13 +780,13 @@ public class VaadinBrowser extends Application
     // http://stackoverflow.com/questions/1498628/how-can-you-integrate-a-custom-file-browser-uploader-with-ckeditor
     protected void fileSelected(String selFile)
     {
-        LOG.warn("file selected: "+selFile);
-        _mainWindow.executeJavaScript("window.opener.CKEDITOR.tools.callFunction("+_currentAction.getEditorCallback()+",'"+StringEscapeUtils.escapeJavaScript(selFile)+"');window.close()");
+        log.warn("file selected: "+selFile);
+        JavaScript.getCurrent().execute("window.opener.CKEDITOR.tools.callFunction("+_currentAction.getEditorCallback()+",'"+StringEscapeUtils.escapeEcmaScript(selFile)+"');window.close()");
     }
 
     protected void showErrorMessage(String message)
     {
-        _mainWindow.executeJavaScript("window.close();window.opener.CKEDITOR.tools.callFunction("+_currentAction.getEditorCallback()+",null,'"+StringEscapeUtils.escapeJavaScript(message)+"')");
+        JavaScript.getCurrent().execute("window.close();window.opener.CKEDITOR.tools.callFunction("+_currentAction.getEditorCallback()+",null,'"+StringEscapeUtils.escapeEcmaScript(message)+"')");
     }
 
     protected FolderContainer getBrowseContainer(String type, boolean isFileBrowser)
@@ -879,7 +880,7 @@ public class VaadinBrowser extends Application
     {
         if (folder != null)
         {
-            _captionLabel.setValue("Content of folder: "+folder.getName());
+            captionLabel.setValue("Content of folder: "+folder.getName());
             _objectContainer= new ObjectContainer(folder, this);
             if (_showAsList)
             {
@@ -891,10 +892,10 @@ public class VaadinBrowser extends Application
             }
             if (folder.isUploadAllowed())
             {
-                WebBrowser browser = (WebBrowser) _mainWindow.getTerminal();
+                WebBrowser browser = Page.getCurrent().getWebBrowser();
                 if (browser.isIE())
                 {
-                    LOG.debug("Simple fileupload for IE in folder: "+folder.getURL());
+                    log.debug("Simple fileupload for IE in folder: "+folder.getURL());
                     if (_uploadAreaS != null)
                     {
                         _topArea.removeComponent(_uploadAreaS);
@@ -933,45 +934,6 @@ public class VaadinBrowser extends Application
         _objectContainer.refresh();
     }
 
-    /**
-     * @return the _splitterPosition
-     */
-    public int getSplitterPosition() {
-        return _splitterPosition;
-    }
-
-    /**
-     * @param splitterPosition the _splitterPosition to set
-     */
-    public void setSplitterPosition(int splitterPosition) {
-        this._splitterPosition = splitterPosition;
-    }
-
-    /**
-     * @return the _currentFragment
-     */
-    public String getCurrentFragment() {
-        return _currentFragment;
-    }
-
-    
-    @Override
-    public void onRequestStart(HttpServletRequest request, HttpServletResponse response) 
-    {
-        String initialFragment= request.getParameter("fr");  // Could be null.
-        if (initialFragment != null)
-        {
-            LOG.debug("Request fragment: "+initialFragment);
-            internalFragmentChanged(initialFragment, request);
-        }
-    }
-
-    @Override
-    public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) 
-    {
-        // throw new UnsupportedOperationException("Not supported yet.");
-    }
-
     public class DetailColumnGenerator implements Table.ColumnGenerator, FlowLayout.ColumnGenerator
     {
         private static final long serialVersionUID = 1L;
@@ -998,7 +960,7 @@ public class VaadinBrowser extends Application
             {
                 Button selButton= new Button("Select");
                 selButton.setData(itemId);
-                selButton.addListener((ClickListener) (ClickEvent event) -> {
+                selButton.addClickListener((ClickEvent event) -> {
                     Object itemId1 = event.getButton().getData();
                     if (itemId1 instanceof IObject) {
                         IObject obj = (IObject) itemId1;
@@ -1011,18 +973,18 @@ public class VaadinBrowser extends Application
             {
                 Button delButton= new Button("Delete");
                 delButton.setData(itemId);
-                delButton.addListener((ClickListener) (ClickEvent event) -> {
+                delButton.addClickListener((ClickEvent event) -> {
                     Object itemId1 = event.getButton().getData();
                     if (itemId1 instanceof IObject) {
                         final IObject obj = (IObject) itemId1;
-                        ConfirmDialog.show(_mainWindow,
+                        ConfirmDialog.show(VaadinBrowser.this,
                                 "Please confirm:",
                                 "Do you wish to delete <"+obj.getName()+"> ?",
                                 "Yes", "No", (ConfirmDialog dialog) -> {
                                     if (dialog.isConfirmed())
                                     {
                                         // Confirmed to continue
-                                        LOG.info("Delete file <"+obj.getName()+">");
+                                        log.info("Delete file <"+obj.getName()+">");
                                         if (obj.delete())
                                         {
                                             // Also remove from detail view
@@ -1030,7 +992,7 @@ public class VaadinBrowser extends Application
                                         }
                                         else
                                         {
-                                            _mainWindow.showNotification("Delete failed", "Failed to delete <"+obj.getName()+">");
+                                            Notification.show("Delete failed", "Failed to delete <"+obj.getName()+">", Notification.Type.WARNING_MESSAGE);
                                         }
                                     }
                                     else
@@ -1047,7 +1009,7 @@ public class VaadinBrowser extends Application
             {
                 Button renButton= new Button("Rename");
                 renButton.setData(itemId);
-                renButton.addListener((ClickListener) (ClickEvent event) -> {
+                renButton.addClickListener((ClickEvent event) -> {
                     Object itemId1 = event.getButton().getData();
                     if (itemId1 instanceof IObject) {
                         final IObject obj = (IObject) itemId1;
@@ -1064,7 +1026,7 @@ public class VaadinBrowser extends Application
                                         _objectContainer.refresh();
                                     }
                         });
-                        _mainWindow.addWindow(dialog);
+                        addWindow(dialog);
                     }
                 });
                 hl.addComponent(renButton);
@@ -1073,7 +1035,7 @@ public class VaadinBrowser extends Application
             {
                 Button resButton= new Button("Resize");
                 resButton.setData(itemId);
-                resButton.addListener((ClickListener) (ClickEvent event) -> {
+                resButton.addClickListener((ClickEvent event) -> {
                     Object itemId1 = event.getButton().getData();
                     if (itemId1 instanceof IObject) {
                         IObject obj = (IObject) itemId1;
@@ -1089,6 +1051,7 @@ public class VaadinBrowser extends Application
 
     public class FolderColumnGenerator implements ColumnGenerator
     {
+        @Serial
         private static final long serialVersionUID = 1L;
         @Override
         public Component generateCell(Table source, Object itemId, Object columnId)
@@ -1100,7 +1063,7 @@ public class VaadinBrowser extends Application
             {
                 Button selButton= new Button("Select");
                 selButton.setData(itemId);
-                selButton.addListener((ClickListener) (ClickEvent event) -> {
+                selButton.addClickListener((ClickEvent event) -> {
                     Object itemId1 = event.getButton().getData();
                     if (itemId1 instanceof IFolder) {
                         IFolder obj = (IFolder) itemId1;
@@ -1130,16 +1093,16 @@ public class VaadinBrowser extends Application
 
             Context envCtx = (Context) initCtx.lookup(JNDI_INITIAL_CONTEXT);
             retVal= (String) envCtx.lookup(key);
-            if (LOG.isDebugEnabled())
+            if (log.isDebugEnabled())
             {
-                LOG.debug("Key <"+key+"> found, so use it :<"+retVal+">");
+                log.debug("Key <"+key+"> found, so use it :<"+retVal+">");
             }
         }
         catch (Exception ex)
         {
-            if (LOG.isDebugEnabled())
+            if (log.isDebugEnabled())
             {
-                LOG.debug("Key <"+key+"> not found, so use default :<"+defaultValue+">");
+                log.debug("Key <"+key+"> not found, so use default :<"+defaultValue+">");
             }
             retVal= defaultValue;
         }
@@ -1148,23 +1111,28 @@ public class VaadinBrowser extends Application
 
     public void showInfoNotification(String message)
     {
-        _notifications.add(null,
-                message,
-                true, Notifique.Styles.INFO, true);
+        displayNotification(message, Notification.Type.HUMANIZED_MESSAGE);
     }
 
     public void showWarningNotification(String message)
     {
-        _notifications.add(null,
-                message,
-                true, Notifique.Styles.WARNING, true);
+        displayNotification(message, Notification.Type.WARNING_MESSAGE);
     }
 
     public void showErrorNotification(String message)
     {
-        _notifications.add(null,
-                message,
-                true, Notifique.Styles.ERROR, true);
+        displayNotification(message, Notification.Type.ERROR_MESSAGE);
+    }
+
+    /**
+     * Show a notification. The messages may contain HTML markup (e.g. line
+     * breaks), so HTML content is allowed.
+     */
+    private void displayNotification(String message, Notification.Type type)
+    {
+        Notification n= new Notification(message, type);
+        n.setHtmlContentAllowed(true);
+        n.show(Page.getCurrent());
     }
 
     protected static String getBrowserURL()
@@ -1210,7 +1178,7 @@ public class VaadinBrowser extends Application
             _contentTable.addGeneratedColumn("ACTION", new DetailColumnGenerator());
             // Not yet _contentTable.setMultiSelect(true);
 
-            _contentTable.setCellStyleGenerator((final Object itemId, final Object propertyId) -> {
+            _contentTable.setCellStyleGenerator((Table source, Object itemId, Object propertyId) -> {
                 if (propertyId != null) 
                 {
                     if (propertyId.equals(ObjectContainer.OBJECT_PROPERTY_NAME))
@@ -1240,11 +1208,11 @@ public class VaadinBrowser extends Application
         else
         {
             _flowPanel= new Panel();
-            _flowPanel.addStyleName(Panel.STYLE_LIGHT);
+            _flowPanel.addStyleName("light");
             _flowPanel.setSizeFull();
             _contentFlow= new FlowLayout();
             _contentArea.addComponent(_flowPanel, BorderLayout.Constraint.CENTER);
-            _flowPanel.addComponent(_contentFlow);
+            _flowPanel.setContent(_contentFlow);
             _contentFlow.addGeneratedColumn("ACTION", new DetailColumnGenerator());
         }
     }
